@@ -1,0 +1,112 @@
+const BASE_API = 'http://localhost:3000';
+if (('serviceWorker' in navigator)) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register(require("/sw.js")).then(function (registration) {
+      console.log(registration);
+      // Registration was successful
+      console.log('ServiceWorker registration successful with scope: ', registration.scope);
+    }, function (err) {
+      // registration failed :(
+      console.log('ServiceWorker registration failed: ', err);
+    });
+  });
+}
+const $ = function (query) {
+  return document.querySelector(query);
+};
+window.addEventListener('DOMContentLoaded', async () => {
+  const listsResponse = await window.fetch(`${BASE_API}/get_lists`);
+  const lists = await listsResponse.json();
+  const map = lists.map(list => {
+    return `
+    <h3 class="text-center">Produtos</h3>
+
+    <ul>
+      <li>
+        <h4>
+          ${list.name}
+        </h4>
+
+        <p>
+          <a href="#" class="js-delete-list" data-list-id="${list.id}">Apagar</a>
+        </p>
+      </li>
+    ` + list.products.map(product => {
+      return `
+        <li>
+          <div class="item-product">
+            <p>${product.name}</p>
+            <p>Alta Prioridade</p>
+            <p>${product.quantity} ${product.unit}</p>
+            <p>
+              <a href="#" class="js-delete-product">Apagar</a>
+              <a href="#" class="js-edit-product" data-product-id="${product.id}">Editar</a>
+            </p>
+          </div>
+        </li>
+      `;
+    }).join() + '</ul>';
+  }).join().replace(/\'\,/g, '');
+  document.querySelector('.products').innerHTML = map;
+  document.querySelector('#js-form-product').addEventListener('submit', async e => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    switch (e.submitter.id) {
+      case 'js-submit-new-product':
+        return await window.fetch(`${BASE_API}/create_product`, {
+          body: formData,
+          method: 'POST'
+        });
+      case 'js-submit-update-product':
+        return await window.fetch(`${BASE_API}/update_product`, {
+          body: formData,
+          method: 'PUT'
+        });
+    }
+  });
+  lists.forEach(list => {
+    const opt = document.createElement('option');
+    opt.value = list.id;
+    opt.innerHTML = list.name;
+    document.querySelector('#js_list_selection').append(opt);
+  });
+});
+window.addEventListener('DOMContentLoaded', () => {
+  document.querySelector('.new-product').addEventListener('click', () => {
+    document.querySelector('#js-modal-product').classList.remove('hide');
+  });
+  document.querySelector('#js-close-modal-new-product').addEventListener('click', e => {
+    e.preventDefault();
+    document.querySelector('#js-modal-product').classList.add('hide');
+    document.querySelector('#js-product-id-hidden-field').value = '';
+  });
+  document.querySelector('.products').addEventListener('click', async e => {
+    if (e.target.classList.contains('js-edit-product')) {
+      document.querySelector('#js-modal-product').classList.remove('hide');
+      document.querySelector('#js-product-modal-title').innerHTML = 'Editar Produto';
+      $('#js-submit-new-product').classList.add('hide');
+      $('#js-submit-update-product').classList.remove('hide');
+      const productRequest = await window.fetch(`${BASE_API}/get_product/${e.target.dataset.productId}`);
+      const product = await productRequest.json();
+      console.log(product);
+      $('#js-product-name-field').value = product.name;
+      $('#js-product-quantity-field').value = product.quantity;
+      $('#js-product-quantity-alert-field').value = product.quantity_alert;
+      $('#js-product-unit-field').value = product.unit;
+      $('#js-product-priority-field').value = product.priority;
+      $('#js_list_selection').value = product.list_id;
+      $('#js-product-value-field').value = product.value;
+      $('#js-product-is_it_over-field').checked = product.is_it_over;
+      $('#js-product-move_to_next_buy-field').checked = product.move_to_next_buy;
+      document.querySelector('#js-product-id-hidden-field').value = e.target.dataset.productId;
+    }
+  });
+  $('#js-form-list').addEventListener('submit', async e => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    await window.fetch(`${BASE_API}/create_list`, {
+      body: formData,
+      method: 'POST'
+    });
+  });
+});

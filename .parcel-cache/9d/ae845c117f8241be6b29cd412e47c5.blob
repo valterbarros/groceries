@@ -1,0 +1,95 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+* {
+  list-style: none;
+}
+
+p {
+  margin: 1em 0;
+}
+
+ul {
+  margin: 1em 0;
+  padding-left: 40px;
+}
+
+.menu {
+  background: blueviolet;
+  height: 70px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  color: white
+}
+
+.home-item, .new-product, .new-buy {
+  padding-left: 20px;
+}
+
+.menu :any-link {
+  color: white;
+  text-decoration: none;
+}
+
+.modal-product {
+  position: absolute;
+  width: 100%;
+  height: 100vh;
+  top: 0;
+  left: 0;
+  padding-top: 20vh;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.products {
+  padding: 10px;
+}
+
+.products ul {
+  padding: 0;
+}
+
+.container {
+  max-width: 600px;
+  margin: auto;
+  padding: 10px;
+  background: white;
+}
+
+.show {
+  display: block;
+}
+
+.hide {
+  display: none;
+}
+
+.item-product {
+  border: 1px solid grey;
+  padding: 10px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.label-priority {
+  padding: 5px;
+  color: white;
+}
+
+.label-priority-Alta {
+  background: red;
+}
+.label-priority-Media {
+  background: yellow;
+}
+.label-priority-Baixa {
+  background: white;
+}
