@@ -8,132 +8,185 @@
     <link rel="manifest" href="/manifest.webmanifest">
 
     <script src="index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reefjs@8/dist/reef.min.js"></script>
 
     <link rel="stylesheet" href="index.css">
   </head>
 
   <body>
     <nav class="menu">
-      <a href="#" class="home-item">Produtos</a>
+      <a href="#" class="home-item" id="js-products-link">Produtos</a>
       <a href="#" class="new-product"> Add New Produto</a>
-      <a href="#" class="new-buy"> Nova Compra</a>
+      <a href="#" class="new-buy" id="js-new-buy-link"> Nova Compra</a>
     </nav>
 
-    <div id="js-modal-product" class="hide modal-product">
-      <div class="container">
-        <form action="" id="js-form-product">
-          <h1 id="js-product-modal-title">Criar Novo Produto</h1>
-
-          <input type="hidden" id="js-product-id-hidden-field" name="product_id">
-
-          <section>
-            <p>
-              <label for=""> Nome:* </label>
-              <input type="text" name="name" id="js-product-name-field">
-            </p>
-
-            <p>
-              <label for=""> Quantidade:* </label>
-              <input type="text" name="quantity" id="js-product-quantity-field">
-            </p>
-
-            <p>
-              <label for=""> Quantidade Alerta:* </label>
-              <input type="text" name="quantity_alert" id="js-product-quantity-alert-field">
-            </p>
+    <div class="js-products-page">
+      <div id="js-modal-product" class="hide modal-product">
+        <div class="container">
+          <form action="" id="js-form-product">
+            <h1 id="js-product-modal-title">Criar Novo Produto</h1>
   
-            <p>
-              <label for=""> Unidade:* </label>
-              <select name="unit" id="js-product-unit-field">
-                <option value=""></option>
-                <option value="Unidade">Unidade</option>
-                <option value="Gramas">Gramas</option>
-                <option value="Kilogramas">Kilogramas</option>
-                <option value="Mililitro">Mililitro</option>
-                <option value="Litro">Litro</option>
-              </select>
-            </p>
+            <input type="hidden" id="js-product-id-hidden-field" name="product_id">
   
-            <p>
-              <label for=""> Prioridade:* </label>
-              <select name="priority" id="js-product-priority-field">
-                <option value=""></option>
-                <option value="Alta Prioridade">Alta Prioridade</option>
-                <option value="Media Prioridade">Media Prioridade</option>
-                <option value="Baixa Prioridade">Baixa Prioridade</option>
-              </select>
-            </p>
+            <section class="flex wrap space-between">
+              <p>
+                <label for=""> Nome:* </label>
+                <br>
+                <input type="text" name="name" id="js-product-name-field">
+              </p>
   
-            <p id="js_list_selection_container">
-              <label for=""> Lista:* </label>
-              <select name="list_id" id="js_list_selection">
-                <option value=""></option>
-              </select>
-            </p>
+              <p>
+                <label for=""> Quantidade:* </label>
+                <br>
+                <input type="number" name="quantity" id="js-product-quantity-field" step="0.01">
+              </p>
+  
+              <p>
+                <label for=""> Quantidade Alerta:* </label>
+                <br>
+                <input type="number" name="quantity_alert" id="js-product-quantity-alert-field" step="0.01">
+              </p>
     
-            <p>
-              <label for=""> Valor:* </label>
-              <input type="number" name="value" id="js-product-value-field"> $
-            </p>
+              <p>
+                <label for=""> Unidade:* </label>
+                <br>
+                <select name="unit" id="js-product-unit-field">
+                  <option value=""></option>
+                  <option value="Unidade">Unidade</option>
+                  <option value="Gramas">Gramas</option>
+                  <option value="Kilogramas">Kilogramas</option>
+                  <option value="Mililitro">Mililitro</option>
+                  <option value="Litro">Litro</option>
+                </select>
+              </p>
+    
+              <p>
+                <label for=""> Prioridade:* </label>
+                <br>
+                <select name="priority" id="js-product-priority-field">
+                  <option value=""></option>
+                  <option value="Alta Prioridade">Alta Prioridade</option>
+                  <option value="Media Prioridade">Media Prioridade</option>
+                  <option value="Baixa Prioridade">Baixa Prioridade</option>
+                </select>
+              </p>
+    
+              <p id="js_list_selection_container">
+                <label for=""> Lista:* </label>
+                <br>
+                <select name="list_id" id="js_list_selection">
+                  <option value=""></option>
+                </select>
+              </p>
+      
+              <!-- <p>
+                <label for=""> Valor:* </label>
+                <br>
+                <input type="number" name="value" id="js-product-value-field" step="0.01"> $
+              </p> -->
+    
+              <p>
+                <label for=""> Foto: </label>
+                <br>
+                <input type="file" name="file">
+              </p>
+    
+              <fieldset class="config-fieldset">
+                <legend>Configurações</legend>
   
-            <p>
-              <label for=""> Foto: </label>
-              <input type="file" name="file">
-            </p>
+                <ul>
+                  <li>
+                    <label for="js-product-is_it_over-field">
+                      <input type="checkbox" name="is_it_over" id="js-product-is_it_over-field" value="true">  
+                      Esse produto acabou?
+                    </label>
+                  </li>
   
-            <fieldset>
-              <legend>Configurações</legend>
-
-              <ul>
-                <li>
-                  <label for="">
-                    <input type="checkbox" name="is_it_over" id="js-product-is_it_over-field">  
-                    Is it Over?
-                  </label>
-                </li>
-
-                <li>
-                  <label for="">
-                    <input type="checkbox" name="move_to_next_buy" id="js-product-move_to_next_buy-field">  
-                    Move to Next Buy?
-                  </label>
-                </li>
-              </ul>
-            </fieldset>
-          </section>
-
+                  <li>
+                    <label for="">
+                      <input type="checkbox" name="move_to_next_buy" id="js-product-move_to_next_buy-field" checked value="true">  
+                      Mover para lista proxima compra?
+                    </label>
+                  </li>
+                </ul>
+              </fieldset>
+            </section>
+  
+            <section>
+              <p>
+                <input type="submit" id="js-submit-new-product" value="Criar Produto">
+                <input type="submit" id="js-submit-update-product" class="hide" value="Editar Produto">
+                <button id="js-close-modal-new-product"> Fechar </button>
+                <input type="reset" value="Resetar">
+              </p>
+            </section>
+          </form>
+        </div>
+      </div>
+  
+      <section class="js-products products">
+      </section>
+  
+      <hr>
+  
+      <section class="add-list">
+        <p>
+          <h3>Adicionar nova Lista</h3>
+        </p>
+  
+        <form action="" id="js-form-list">
           <section>
             <p>
-              <input type="submit" id="js-submit-new-product" value="Criar Produto">
-              <input type="submit" id="js-submit-update-product" class="hide" value="Editar Produto">
-              <button id="js-close-modal-new-product"> Fechar </button>
+              <label for=""> Nome da Lista:* </label>
+              <input type="text" name="name">
+            </p>
+          </section>
+  
+          <section>
+            <label for="">
+              <input type="checkbox" name="next_buy_list">
+              Lista para Proximas Compras?
+            </label>
+
+            <label for="">
+              <input type="checkbox" name="stock_list">
+              Lista para Estoque?
+            </label>
+          </section>
+    
+          <section>
+            <p>
+              <input type="submit" value="Salvar">
             </p>
           </section>
         </form>
-      </div>
+      </section>
+
+      <section>
+        <img class="background-groceries" src="images/background-groceries.png" alt="">
+      </section>
+
+      <section class="js-history-modal history-modal hide">
+        <div class="container">
+          <div class="js-history-container">
+  
+          </div>
+        </div>
+      </section>
     </div>
 
-    <section class="products">
-      <h3 class="text-center"> Produtos </h3>
-    </section>
+    <div class="js-buy-page hide">
+      <h3 class="text-center"> Compras </h3>
 
-    <section class="add-list">
-      <h3>Adicionar nova Lista</h3>
+      <div class="text-center">
+        <button class="primary" id="js-add-new-item-button">Add Novo Item</button>
+      </div>
 
-      <form action="" id="js-form-list">
-        <section>
-          <p>
-            <label for=""> Nome da Lista:* </label>
-            <input type="text" name="name">
-          </p>
-        </section>
-  
-        <section>
-          <p>
-            <input type="submit">
-          </p>
-        </section>
-      </form>
-    </section>
+      <div id="js-buy-item"></div>
+
+      <section>
+        <img class="background-groceries" src="images/background-groceries.png" alt="">
+      </section>
+    </div>
   </body>
 </html>

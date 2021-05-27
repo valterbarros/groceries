@@ -17,65 +17,127 @@ const $ = function(query) {
   return document.querySelector(query);
 }
 
-window.addEventListener('DOMContentLoaded', async () => {
+function createBuyHistory() {
+  window.historyComponent = new Reef('.js-history-container', {
+    data: {
+      buys: []
+    },
+    template: function(props) {
+      if (!props.buys.length) {
+        return `<div> Esse produto ainda não possui historico</div>`;
+      }
+
+      return `
+        <div>
+          ${props.buys.map((buy) => {
+            console.log(buy);
+            return `
+              <table>
+                <tr>
+                  <th>Produto</th>
+                  <th>Quantidade</th>
+                  <th colspan="2">Valor</th>
+                </tr>
+                <tr>
+                  <td>${buy.product}</td>
+                  <td>${buy.quantity || '-'}</td>
+                  <td>R$ ${buy.value || '-'}</td>
+                </tr>
+              <table>
+            `
+          }).join('')}
+        </div>
+      `
+    }
+  });
+
+  window.historyComponent.render();
+}
+
+async function createProductList() {
+  window.productsComponent = new Reef('.js-products', {
+    data: {
+      lists: []
+    },
+    template: function(props) {
+      return `
+        <h3 class="text-center"> Produtos </h3>
+        
+        <form class="js-move-items-from-form">
+          <span id="js-move-items-from-list" href="#">Mover Itens Para a Lista?</span>
+          <select name="list_destiny">
+            <option>Selecione uma Lista</option>
+            ${props.lists.map((list) => {
+                return `
+                  <option value="${list.id}">${list.name}</option>
+                `
+              }).join('')
+            }
+          </select>
+          <input type="submit" value="Confirmar">
+        </form>
+
+        ${props.lists.map((list) => {
+          return `
+            <ul>
+              <li>
+                <h4>
+                  ${list.name}
+                  ${list.next_buy_list ? '(Lista para produtos da proxima compra)' : ''}
+                  ${list.stock_list ? '(Lista para produtos em estoque)' : ''}
+                </h4>
+                <p>
+                  <a id="js-delete-list" data-list-id="${list.id}" href="#">Apagar</a>
+                </p>
+              </li>
+              
+              ${list.products.map((product) => {
+                return `
+                  <li>
+                    <label for="js_move_to_other_list_${product.id}">
+                      <input type="checkbox" class="move-to-other-list-element hide" id="js_move_to_other_list_${product.id}" value="${product.id}">
+                      <div class="item-product">
+                        <p>${product.name}</p>
+                        <span class="label-priority-${product.priority.split(' ')[0]} label-priority">${product.priority}</span>
+                        ${product.is_low_amount ? '<span class="label-low-amount">Low Amount</span>' : ''}
+                        ${product.is_it_over ? '<span class="label-out-of-stock">Fora de Estoque</span>' : ''}
+                        <p class="${product.is_it_over ? 'hide' : ''}">${product.quantity} ${product.unit}</p>
+                        <p>R$ ${product.last_buy_value}</p>
+                        <p>
+                          <a data-product-id="${product.id}" class="js-delete-product" href="#">Apagar</a>
+                          <a data-product-id="${product.id}" href="#" class="js-edit-product">Editar</a>
+                          <a data-product-id="${product.id}" href="#" class="js-history-product">Historico de Compras</a>
+                        </p>
+
+                        <div class="item-product-bar" style="width: ${product.percentage}%"></div>
+                      </div>
+                    </label>
+                  </li>
+                `
+              }).join('')}
+            </ul>
+          `
+        }).join('')}
+      `
+    }
+  });
+  
+  productsComponent.render();
+
   const listsResponse = await window.fetch(`${BASE_API}/get_lists`);
   const lists = await listsResponse.json();
+  productsComponent.data.lists = lists;
+}
 
-  lists.forEach((list) => {
-    const ul = document.createElement('ul');
-    const liTitle = document.createElement('li');
-    const h4 = document.createElement('h4');
-    h4.textContent = list.name;
-    const p = document.createElement('p');
-    const a = document.createElement('a');
-    a.id = 'js-delete-list';
-    a.dataset.listId = list.id;
-    a.textContent = 'Apagar';
-    a.href = '#'
+async function updateProductsComponent() {
+  const listsResponse = await window.fetch(`${BASE_API}/get_lists`);
+  const lists = await listsResponse.json();
+  window.productsComponent.data.lists = lists;
+}
 
-    p.append(a);
-    liTitle.append(h4);
-    liTitle.append(p);
-    ul.append(liTitle);
-
-    list.products.forEach((product) => {
-      const liProduct = document.createElement('li');
-      const div = document.createElement('div');
-      div.classList.add('item-product');
-  
-      const pName = document.createElement('p');
-      pName.textContent = product.name;
-      const spPriority = document.createElement('span');
-      spPriority.textContent = product.priority;
-      spPriority.classList.add(`label-priority-${product.priority.split(' ')[0]}`);
-      spPriority.classList.add('label-priority');
-      const pQuantityUnit = document.createElement('p');
-      pQuantityUnit.textContent = `${product.quantity} ${product.unit}`;
-  
-      const pActions = document.createElement('p');
-      const aDeleteProduct = document.createElement('a');
-      aDeleteProduct.textContent = 'Apagar';
-      aDeleteProduct.classList = 'js-delete-product';
-      aDeleteProduct.href = '#';
-      const aEditProduct = document.createElement('a');
-      aEditProduct.textContent = 'Editar';
-      aEditProduct.dataset.productId = product.id;
-      aEditProduct.href = '#'
-      aEditProduct.classList.add('js-edit-product');
-      pActions.append(aDeleteProduct);
-      pActions.append(aEditProduct);
-  
-      div.append(pName);
-      div.append(spPriority);
-      div.append(pQuantityUnit);
-      div.append(pActions);
-  
-      liProduct.append(div);
-      ul.append(liProduct);
-    });
-
-    document.querySelector('.products').append(ul);
-  });
+window.addEventListener('DOMContentLoaded', async () => {
+  createBuyHistory();
+  await createProductList();
 
   document.querySelector('#js-form-product').addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -84,11 +146,18 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     switch(e.submitter.id) {
       case 'js-submit-new-product':
-        return await window.fetch(`${BASE_API}/create_product`, { body: formData, method: 'POST' });
+        await window.fetch(`${BASE_API}/create_product`, { body: formData, method: 'POST' });
+        await updateProductsComponent();
+        return;
       case 'js-submit-update-product':
-        return await window.fetch(`${BASE_API}/update_product`, { body: formData, method: 'PUT' });
+        await window.fetch(`${BASE_API}/update_product`, { body: formData, method: 'PUT' });
+        await updateProductsComponent();
+        return
     }
   });
+
+  const listsResponse = await window.fetch(`${BASE_API}/get_lists`);
+  const lists = await listsResponse.json();
 
   lists.forEach((list) => {
     const opt = document.createElement('option');
@@ -97,23 +166,20 @@ window.addEventListener('DOMContentLoaded', async () => {
     opt.innerHTML = list.name;
 
     document.querySelector('#js_list_selection').append(opt);
-  })
+  });
 });
 
 window.addEventListener('DOMContentLoaded', () => {
-  document.querySelector('.new-product').addEventListener('click', () => {
+  document.querySelector('.new-product').addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
     document.querySelector('#js-modal-product').classList.remove('hide');
     $('#js-product-modal-title').innerHTML = 'Criar Novo Produto';
+    $('#js-submit-new-product').classList.remove('hide');
+    $('#js-submit-update-product').classList.add('hide');
 
-    $('#js-product-name-field').value = '';
-    $('#js-product-quantity-field').value = '';
-    $('#js-product-quantity-alert-field').value = '';
-    $('#js-product-unit-field').value = '';
-    $('#js-product-priority-field').value = '';
-    $('#js_list_selection').value = '';
-    $('#js-product-value-field').value = '';
-    $('#js-product-is_it_over-field').checked = false;
-    $('#js-product-move_to_next_buy-field').checked = false;
+    $('#js-form-product').reset();
   });
 
   document.querySelector('#js-close-modal-new-product').addEventListener('click', (e) => {
@@ -123,8 +189,9 @@ window.addEventListener('DOMContentLoaded', () => {
     document.querySelector('#js-product-id-hidden-field').value = '';
   });
 
-  document.querySelector('.products').addEventListener('click', async (e) => {
+  document.querySelector('.js-products').addEventListener('click', async (e) => {
     if (e.target.classList.contains('js-edit-product')) {
+      e.preventDefault();
       document.querySelector('#js-modal-product').classList.remove('hide');
       document.querySelector('#js-product-modal-title').innerHTML = 'Editar Produto';
 
@@ -140,7 +207,7 @@ window.addEventListener('DOMContentLoaded', () => {
       $('#js-product-unit-field').value = product.unit;
       $('#js-product-priority-field').value = product.priority;
       $('#js_list_selection').value = product.list_id;
-      $('#js-product-value-field').value = product.value;
+      // $('#js-product-value-field').value = product.value;
       $('#js-product-is_it_over-field').checked = product.is_it_over;
       $('#js-product-move_to_next_buy-field').checked = product.move_to_next_buy;
 
@@ -149,10 +216,53 @@ window.addEventListener('DOMContentLoaded', () => {
 
     if (e.target.id === 'js-delete-list') {
       e.preventDefault();
-
       const listId = e.target.dataset.listId;
       
       await window.fetch(`${BASE_API}/delete_list/${listId}`, { method: 'DELETE' });
+      await updateProductsComponent();
+    }
+
+    if (e.target.classList.contains('js-delete-product')) {
+      e.preventDefault();
+      const productId = e.target.dataset.productId;
+      
+      await window.fetch(`${BASE_API}/delete_product/${productId}`, { method: 'DELETE' });
+      await updateProductsComponent();
+    }
+
+    if (e.target.classList.contains('js-history-product')) {
+      e.preventDefault();
+
+      const productId = e.target.dataset.productId;
+
+      const res = await window.fetch(`${BASE_API}/get_product_buys/${productId}`);
+      const buys = await res.json();
+
+      window.historyComponent.data.buys = buys;
+      $('.js-history-modal').classList.remove('hide');
+    }
+  });
+
+  $('.js-history-modal').addEventListener('click', (e) => {
+    if(e.target.classList.contains('js-history-modal')) {
+      $('.js-history-modal').classList.add('hide');
+    }
+  }, false);
+
+  $('.js-products').addEventListener('submit', async (e) => {
+    if (e.target.classList.contains('js-move-items-from-form')) {
+      e.preventDefault();
+      
+      const allProductsChecked = [...document.querySelectorAll('input:checked')]
+        .filter(checkbox => checkbox.id.includes('js_move_to_other_list'));
+      
+      const formData = new FormData(e.target);
+      allProductsChecked.forEach((product) => {
+        formData.append(`products[]`, product.value)
+      });
+
+      await window.fetch(`${BASE_API}/move_products_from_list`, { body: formData, method: 'PUT' });
+      updateProductsComponent();
     }
   });
 
@@ -162,5 +272,92 @@ window.addEventListener('DOMContentLoaded', () => {
     const formData = new FormData(e.target);
     
     await window.fetch(`${BASE_API}/create_list`, { body: formData, method: 'POST' });
-  })
+    await updateProductsComponent();
+  });
+});
+
+async function addBuyItem() {
+  window.buyItemComponent = new Reef('#js-buy-item', {
+    data: {
+      items: [],
+      products: []
+    },
+    template: function (props) {
+      return `
+        ${props.items.map((item) => {
+          return `
+            <form class="js-buy-section-form">
+              <section class="buy-section flex space-between wrap">
+                  <p>
+                    <label> Produto:* </label>
+                    <select name="buys[]product_id">
+                      <option> Escolha um Produto </option>
+                      ${props.products.map((product) => {
+                        return `<option value="${product.id}"> ${product.name} : ${product.unit} </option>`
+                      }).join('')}
+                    </select>
+                  </p>
+                  <p>
+                    <label> Quantidade:* </label>
+                    <input type="number" name="buys[]quantity" step="0.01">
+                  </p>
+                  <p>
+                    <label> Valor:* </label>
+                    <input type="number" name="buys[]value" step="0.01">$
+                  </p>
+                  <p>
+                    <label>
+                      <input type="checkbox" name="buys[]is_move_to_stock" checked value="true">
+                      Mover para Estoque?*
+                    </label>
+                  </p>
+              </section>
+          `
+        }).join('')}
+
+          <div class="text-center">
+            <button class="success" id="js-finish-buy-button">Finalizar Compra</button>
+          </div>
+        </form>
+      `
+    }
+  });
+
+  const res = await window.fetch(`${BASE_API}/get_products`);
+  const products = await res.json();
+  console.log(products);
+
+  window.buyItemComponent.data.products = products;
+
+  window.buyItemComponent.render();
+}
+
+window.addEventListener('DOMContentLoaded', async () => {
+  await addBuyItem();
+
+  console.log($('.js-buy-section-form'));
+  $('#js-add-new-item-button').addEventListener('click', () => {
+    window.buyItemComponent.data.items.push({ product: null, quantity: 0, value: 0 })
+  });
+
+  $('#js-buy-item').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    if (e.target.classList.contains('js-buy-section-form')) {
+      const formData = new FormData(e.target);
+
+      await window.fetch(`${BASE_API}/create_buy`, { method: 'POST', body: formData });
+      await updateProductsComponent();
+    }
+  });
+
+  $('#js-new-buy-link').addEventListener('click', () => {
+    $('.js-products-page').classList.add('hide');
+    $('.js-buy-page').classList.remove('hide');
+  });
+
+  $('#js-products-link').addEventListener('click', () => {
+    $('.js-products-page').classList.remove('hide');
+    $('.js-buy-page').classList.add('hide');
+  });
 });

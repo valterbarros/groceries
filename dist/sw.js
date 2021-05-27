@@ -145,8 +145,7 @@ var cacheName = 'shell-content';
 var filesToCache = [
   '/images/icons-192.png',
   '/images/icons-512.png',
-  '/',
-  'index.html',
+  '/'
 ];
 
 self.addEventListener('install', function(e) {
