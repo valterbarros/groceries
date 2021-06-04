@@ -13,8 +13,8 @@
     <link rel="stylesheet" href="index.css">
   </head>
 
-  <body>
-    <nav class="menu">
+  <body class="body-element ">
+    <nav class="menu js-menu">
       <a href="#" class="home-item" id="js-products-link">Produtos</a>
       <a href="#" class="new-product"> Add New Produto</a>
       <a href="#" class="new-buy" id="js-new-buy-link"> Nova Compra</a>
@@ -28,29 +28,29 @@
   
             <input type="hidden" id="js-product-id-hidden-field" name="product_id">
   
-            <section class="flex wrap space-between">
+            <section class="flex wrap space-between modal-product-fields">
               <p>
                 <label for=""> Nome:* </label>
                 <br>
-                <input type="text" name="name" id="js-product-name-field">
+                <input type="text" name="name" id="js-product-name-field" required>
               </p>
   
               <p>
                 <label for=""> Quantidade:* </label>
                 <br>
-                <input type="number" name="quantity" id="js-product-quantity-field" step="0.01">
+                <input type="number" name="quantity" id="js-product-quantity-field" step="0.01" required>
               </p>
   
               <p>
                 <label for=""> Quantidade Alerta:* </label>
                 <br>
-                <input type="number" name="quantity_alert" id="js-product-quantity-alert-field" step="0.01">
+                <input type="number" name="quantity_alert" id="js-product-quantity-alert-field" step="0.01" required>
               </p>
     
               <p>
                 <label for=""> Unidade:* </label>
                 <br>
-                <select name="unit" id="js-product-unit-field">
+                <select name="unit" id="js-product-unit-field" required>
                   <option value=""></option>
                   <option value="Unidade">Unidade</option>
                   <option value="Gramas">Gramas</option>
@@ -63,18 +63,18 @@
               <p>
                 <label for=""> Prioridade:* </label>
                 <br>
-                <select name="priority" id="js-product-priority-field">
+                <select name="priority" id="js-product-priority-field" required>
                   <option value=""></option>
-                  <option value="Alta Prioridade">Alta Prioridade</option>
-                  <option value="Media Prioridade">Media Prioridade</option>
-                  <option value="Baixa Prioridade">Baixa Prioridade</option>
+                  <option value="1 Alta Prioridade">Alta Prioridade</option>
+                  <option value="2 Media Prioridade">Media Prioridade</option>
+                  <option value="3 Baixa Prioridade">Baixa Prioridade</option>
                 </select>
               </p>
     
               <p id="js_list_selection_container">
                 <label for=""> Lista:* </label>
                 <br>
-                <select name="list_id" id="js_list_selection">
+                <select name="list_id" id="js_list_selection" required>
                   <option value=""></option>
                 </select>
               </p>
@@ -114,6 +114,7 @@
   
             <section>
               <p>
+                <p id="js-success-product-message" class="hide success-message"> Produto cadastrado/editado com sucesso! </p>
                 <input type="submit" id="js-submit-new-product" value="Criar Produto">
                 <input type="submit" id="js-submit-update-product" class="hide" value="Editar Produto">
                 <button id="js-close-modal-new-product"> Fechar </button>
@@ -123,22 +124,21 @@
           </form>
         </div>
       </div>
-  
+
       <section class="js-products products">
       </section>
-  
-      <hr>
-  
-      <section class="add-list">
-        <p>
-          <h3>Adicionar nova Lista</h3>
-        </p>
+
+      <section class="add-list js-add-list hidden">
+        <div>
+          <h3 class="inline-block add-list-title">Adicionar nova Lista</h3>
+          <button class="js-open-create-list-section open-create-list-section"> Abrir </button>
+        </div>
   
         <form action="" id="js-form-list">
           <section>
             <p>
               <label for=""> Nome da Lista:* </label>
-              <input type="text" name="name">
+              <input type="text" name="name" required>
             </p>
           </section>
   
@@ -157,6 +157,7 @@
           <section>
             <p>
               <input type="submit" value="Salvar">
+              <button class="js-close-create-list-section close-create-list-section"> Fechar </button>
             </p>
           </section>
         </form>
@@ -178,11 +179,12 @@
     <div class="js-buy-page hide">
       <h3 class="text-center"> Compras </h3>
 
-      <div class="text-center">
-        <button class="primary" id="js-add-new-item-button">Add Novo Item</button>
-      </div>
-
       <div id="js-buy-item"></div>
+
+      <div class="text-center padding-top-10 padding-bottom-10">
+        <p id="js-success-buy-message" class="hide success-message"> Compra Finalizada com sucesso! </p>
+        <button class="primary" id="js-add-new-item-button">+ Add Novo Item</button>
+      </div>
 
       <section>
         <img class="background-groceries" src="images/background-groceries.png" alt="">

@@ -1,4 +1,4 @@
-const BASE_API = 'http://localhost:3000';
+const BASE_API = 'http://192.168.0.103:3000';
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function() {
@@ -61,9 +61,13 @@ async function createProductList() {
     },
     template: function(props) {
       return `
-        <h3 class="text-center"> Produtos </h3>
+        <h3 class="text-center js-products-main-title">
+          Produtos
+          <br>
+          <button id="js-show-list-options"> Mostrar Opções de Lista </button>
+        </h3>
         
-        <form class="js-move-items-from-form">
+        <form class="js-move-items-from-form hide">
           <span id="js-move-items-from-list" href="#">Mover Itens Para a Lista?</span>
           <select name="list_destiny">
             <option>Selecione uma Lista</option>
@@ -75,49 +79,55 @@ async function createProductList() {
             }
           </select>
           <input type="submit" value="Confirmar">
+          <hr>
         </form>
 
-        ${props.lists.map((list) => {
-          return `
-            <ul>
-              <li>
-                <h4>
-                  ${list.name}
-                  ${list.next_buy_list ? '(Lista para produtos da proxima compra)' : ''}
-                  ${list.stock_list ? '(Lista para produtos em estoque)' : ''}
-                </h4>
-                <p>
-                  <a id="js-delete-list" data-list-id="${list.id}" href="#">Apagar</a>
-                </p>
-              </li>
-              
-              ${list.products.map((product) => {
-                return `
-                  <li>
-                    <label for="js_move_to_other_list_${product.id}">
-                      <input type="checkbox" class="move-to-other-list-element hide" id="js_move_to_other_list_${product.id}" value="${product.id}">
-                      <div class="item-product">
-                        <p>${product.name}</p>
-                        <span class="label-priority-${product.priority.split(' ')[0]} label-priority">${product.priority}</span>
-                        ${product.is_low_amount ? '<span class="label-low-amount">Low Amount</span>' : ''}
-                        ${product.is_it_over ? '<span class="label-out-of-stock">Fora de Estoque</span>' : ''}
-                        <p class="${product.is_it_over ? 'hide' : ''}">${product.quantity} ${product.unit}</p>
-                        <p>R$ ${product.last_buy_value}</p>
-                        <p>
-                          <a data-product-id="${product.id}" class="js-delete-product" href="#">Apagar</a>
-                          <a data-product-id="${product.id}" href="#" class="js-edit-product">Editar</a>
-                          <a data-product-id="${product.id}" href="#" class="js-history-product">Historico de Compras</a>
-                        </p>
+        <div class="products-list-container js-products-list-container hidden">
+          ${props.lists.map((list) => {
+            return `
+              <ul class="list-element">
+                <li class="list-title">
+                  <h4 class="no-margin">
+                    ${list.name}
+                    ${list.next_buy_list ? '(Lista para produtos da proxima compra)' : ''}
+                    ${list.stock_list ? '(Lista para produtos em estoque)' : ''}
+                  </h4>
+                  <p class="margin-8-0">
+                    <a id="js-delete-list" data-list-id="${list.id}" href="#">Apagar</a>
+                    <a id="js-view-list" href="#">Visão Simplificada</a>
+                  </p>
+                </li>
+                
+                ${list.products.map((product) => {
+                  return `
+                    <li>
+                      <label for="js_move_to_other_list_${product.id}">
+                        <input type="checkbox" class="move-to-other-list-element hide" id="js_move_to_other_list_${product.id}" value="${product.id}">
+                        <div class="item-product">
+                          <p>${product.name}</p>
+                          <div>
+                          <span class="label-priority-${product.priority.split(' ')[0]} label-priority">${product.priority}</span>
+                          ${product.is_low_amount ? '<span class="label-low-amount">Low Amount</span>' : ''}
+                          ${product.is_it_over ? '<span class="label-out-of-stock">Fora de Estoque</span>' : ''}
+                          </div>
+                          <span class="${product.is_it_over ? 'hide' : ''}">${product.quantity} ${product.unit}</span>
+                          <span>R$ ${product.last_buy_value}</span>
+                          <p>
+                            <a data-product-id="${product.id}" class="js-delete-product" href="#">Apagar</a>
+                            <a data-product-id="${product.id}" href="#" class="js-edit-product">Editar</a>
+                            <a data-product-id="${product.id}" href="#" class="js-history-product">Historico de Compras</a>
+                          </p>
 
-                        <div class="item-product-bar" style="width: ${product.percentage}%"></div>
-                      </div>
-                    </label>
-                  </li>
-                `
-              }).join('')}
-            </ul>
-          `
-        }).join('')}
+                          <div class="item-product-bar" style="width: ${product.percentage}%"></div>
+                        </div>
+                      </label>
+                    </li>
+                  `
+                }).join('')}
+              </ul>
+            `
+          }).join('')}
+        <div>
       `
     }
   });
@@ -139,6 +149,17 @@ window.addEventListener('DOMContentLoaded', async () => {
   createBuyHistory();
   await createProductList();
 
+  // document.querySelectorAll('#js-modal-product').forEach((element) => {
+  //   element.addEventListener('keypress', (e) => {
+  //     console.log(e.key);
+  //     if (e.key === 'Enter') {
+  //       console.log(e.target.form);
+  //       const submit = new Event('submit');
+  //       e.target.form.dispatchEvent(submit);
+  //     }
+  //   });
+  // });
+
   document.querySelector('#js-form-product').addEventListener('submit', async (e) => {
     e.preventDefault();
 
@@ -148,10 +169,25 @@ window.addEventListener('DOMContentLoaded', async () => {
       case 'js-submit-new-product':
         await window.fetch(`${BASE_API}/create_product`, { body: formData, method: 'POST' });
         await updateProductsComponent();
+        $('#js-success-product-message').classList.add('show');
+        $('#js-success-product-message').classList.remove('hide');
+
+        setTimeout(() => {
+          $('#js-success-product-message').classList.remove('show');
+          $('#js-success-product-message').classList.add('hide');
+        }, 1000);
+
         return;
       case 'js-submit-update-product':
         await window.fetch(`${BASE_API}/update_product`, { body: formData, method: 'PUT' });
         await updateProductsComponent();
+        $('#js-success-product-message').classList.add('show');
+        $('#js-success-product-message').classList.remove('hide');
+
+        setTimeout(() => {
+          $('#js-success-product-message').classList.remove('show');
+          $('#js-success-product-message').classList.add('hide');
+        }, 1000);
         return
     }
   });
@@ -222,6 +258,14 @@ window.addEventListener('DOMContentLoaded', () => {
       await updateProductsComponent();
     }
 
+    if (e.target.id === 'js-view-list') {
+      // window.scroll({top: 160, behavior: 'smooth'});
+      $('.js-menu').classList.toggle('hide');
+      $('.js-products-main-title').classList.toggle('hide');
+      $('.js-add-list').classList.toggle('hide');
+      $('.js-products-list-container').classList.toggle('collapse');
+    }
+
     if (e.target.classList.contains('js-delete-product')) {
       e.preventDefault();
       const productId = e.target.dataset.productId;
@@ -240,6 +284,10 @@ window.addEventListener('DOMContentLoaded', () => {
 
       window.historyComponent.data.buys = buys;
       $('.js-history-modal').classList.remove('hide');
+    }
+
+    if (e.target.id === 'js-show-list-options') {
+      $('.js-move-items-from-form').classList.toggle('hide');
     }
   });
 
@@ -274,6 +322,18 @@ window.addEventListener('DOMContentLoaded', () => {
     await window.fetch(`${BASE_API}/create_list`, { body: formData, method: 'POST' });
     await updateProductsComponent();
   });
+
+  $('.js-close-create-list-section').addEventListener('click', (e) => {
+    e.preventDefault();
+
+    $('.js-add-list').classList.add('hidden');
+  });
+
+  $('.js-open-create-list-section').addEventListener('click', (e) => {
+    e.preventDefault();
+
+    $('.js-add-list').classList.remove('hidden');
+  });
 });
 
 async function addBuyItem() {
@@ -284,37 +344,48 @@ async function addBuyItem() {
     },
     template: function (props) {
       return `
-        ${props.items.map((item) => {
+        ${props.items.map((item, index) => {
           return `
             <form class="js-buy-section-form">
               <section class="buy-section flex space-between wrap">
-                  <p>
-                    <label> Produto:* </label>
-                    <select name="buys[]product_id">
-                      <option> Escolha um Produto </option>
-                      ${props.products.map((product) => {
-                        return `<option value="${product.id}"> ${product.name} : ${product.unit} </option>`
-                      }).join('')}
-                    </select>
-                  </p>
-                  <p>
-                    <label> Quantidade:* </label>
-                    <input type="number" name="buys[]quantity" step="0.01">
-                  </p>
-                  <p>
-                    <label> Valor:* </label>
-                    <input type="number" name="buys[]value" step="0.01">$
-                  </p>
-                  <p>
-                    <label>
-                      <input type="checkbox" name="buys[]is_move_to_stock" checked value="true">
-                      Mover para Estoque?*
-                    </label>
-                  </p>
+                <p>
+                  <label> Produto:* </label>
+                  <br>
+                  <input type="text" name="buys[]product_id" list="productSuggestion">
+                  <datalist id="productSuggestion">
+                    ${props.products.map((product) => {
+                      return `<option> ${product.id} - ${product.name} : ${product.unit} </option>`
+                    }).join('')}
+                  </datalist>
+                </p>
+                <p>
+                  <label> Quantidade:* </label>
+                  <br>
+                  <input type="number" name="buys[]quantity" step="0.01" required>
+                </p>
+                <p>
+                  <label> Valor:* </label>
+                  <br>
+                  <input type="number" name="buys[]value" step="0.01" required>$
+                </p>
+                <p>
+                  <label>
+                    <input type="checkbox" name="buys[]is_move_to_stock" checked value="true">
+                    Mover para Estoque?*
+                  </label>
+                </p>
+                <p>
+                  <button
+                    href="#"
+                    class="js-remove-buy-action"
+                    data-index="${index}"
+                  >
+                    Remover
+                  </button>
+                </p>
               </section>
           `
         }).join('')}
-
           <div class="text-center">
             <button class="success" id="js-finish-buy-button">Finalizar Compra</button>
           </div>
@@ -337,7 +408,15 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   console.log($('.js-buy-section-form'));
   $('#js-add-new-item-button').addEventListener('click', () => {
-    window.buyItemComponent.data.items.push({ product: null, quantity: 0, value: 0 })
+    window.buyItemComponent.data.items.push({ product: null, quantity: 0, value: 0 });
+  });
+
+  $('#js-buy-item').addEventListener('click', (e) => {
+    if (e.target.classList.contains('js-remove-buy-action')) {
+      e.preventDefault();
+      const index = e.target.dataset.index;
+      window.buyItemComponent.data.items.splice(index, 1);
+    }
   });
 
   $('#js-buy-item').addEventListener('submit', async (e) => {
@@ -346,8 +425,20 @@ window.addEventListener('DOMContentLoaded', async () => {
     if (e.target.classList.contains('js-buy-section-form')) {
       const formData = new FormData(e.target);
 
-      await window.fetch(`${BASE_API}/create_buy`, { method: 'POST', body: formData });
-      await updateProductsComponent();
+      try {
+        await window.fetch(`${BASE_API}/create_buy`, { method: 'POST', body: formData });
+        await updateProductsComponent();
+        window.buyItemComponent.data.items = [];
+        $('#js-success-buy-message').classList.add('show');
+        $('#js-success-buy-message').classList.remove('hide');
+        console.log($('#js-success-buy-message').classList);
+        setTimeout(() => {
+          $('#js-success-buy-message').classList.remove('show');
+          $('#js-success-buy-message').classList.add('hide');
+        }, 1000)
+      } catch (err) {
+        console.log(err);
+      }
     }
   });
 
