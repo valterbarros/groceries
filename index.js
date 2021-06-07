@@ -54,6 +54,43 @@ function createBuyHistory() {
   window.historyComponent.render();
 }
 
+async function createMoveList() {
+  window.moveListComponent = new Reef('.js-move-itens-list', {
+    data: {
+      lists: []
+    },
+    template: function(props) {
+      return `
+        <form class="js-move-items-from-form hide padding-top-07em">
+          <label>Selecione para onde deseja mover os itens</label>
+          <br>
+          <select name="list_destiny" id="js-list-destiny" required pattern="/d+">
+            <option disabled value selected> Selecione uma opcão</option>
+            <optgroup label="Outros">
+              <option value="move_to_next_buy_feature"> Mover para Nova Compra</option>
+            </optgroup>
+            <optgroup label="Listas">
+            ${props.lists.map((list) => {
+                return `
+                  <option value="${list.id}">${list.name}</option>
+                `
+              }).join('')
+            }
+            </optgroup>
+          </select>
+          <input type="submit" value="Confirmar">
+        </form>
+      `
+    }
+  });
+
+  moveListComponent.render();
+
+  const listsResponse = await window.fetch(`${BASE_API}/get_lists`);
+  const lists = await listsResponse.json();
+  moveListComponent.data.lists = lists;
+}
+
 async function createProductList() {
   window.productsComponent = new Reef('.js-products', {
     data: {
@@ -61,53 +98,31 @@ async function createProductList() {
     },
     template: function(props) {
       return `
-        <h3 class="text-center js-products-main-title">
-          Produtos
-          <br>
-          <button id="js-show-list-options"> Mostrar Opções de Lista </button>
-        </h3>
-        
-        <form class="js-move-items-from-form hide">
-          <span id="js-move-items-from-list" href="#">Mover Itens Para a Lista?</span>
-          <select name="list_destiny">
-            <option>Selecione uma Lista</option>
-            ${props.lists.map((list) => {
-                return `
-                  <option value="${list.id}">${list.name}</option>
-                `
-              }).join('')
-            }
-          </select>
-          <input type="submit" value="Confirmar">
-          <hr>
-        </form>
-
-        <div class="products-list-container js-products-list-container hidden">
+        <div class="products-list-container js-products-list-container">
           ${props.lists.map((list) => {
             return `
               <ul class="list-element">
-                <li class="list-title">
-                  <h4 class="no-margin">
+                <li class="list-title flex space-between align-items-center">
+                  <h4 class="no-margin inline-block">
                     ${list.name}
-                    ${list.next_buy_list ? '(Lista para produtos da proxima compra)' : ''}
-                    ${list.stock_list ? '(Lista para produtos em estoque)' : ''}
+                    ${list.next_buy_list ? '(Lista: Proxima Compra)' : ''}
+                    ${list.stock_list ? '(Lista: Estoque)' : ''}
                   </h4>
-                  <p class="margin-8-0">
+                  <span>
                     <a id="js-delete-list" data-list-id="${list.id}" href="#">Apagar</a>
-                    <a id="js-view-list" href="#">Visão Simplificada</a>
-                  </p>
+                  </span>
                 </li>
                 
                 ${list.products.map((product) => {
                   return `
                     <li>
                       <label for="js_move_to_other_list_${product.id}">
-                        <input type="checkbox" class="move-to-other-list-element hide" id="js_move_to_other_list_${product.id}" value="${product.id}">
+                        <input type="checkbox" class="move-to-other-list-element js-move-to-other-list-element hide" id="js_move_to_other_list_${product.id}" value="${product.id}">
                         <div class="item-product">
                           <p>${product.name}</p>
                           <div>
                           <span class="label-priority-${product.priority.split(' ')[0]} label-priority">${product.priority}</span>
-                          ${product.is_low_amount ? '<span class="label-low-amount">Low Amount</span>' : ''}
+                          ${product.is_low_amount ? '<span class="label-low-amount">Baixa Quantidade</span>' : ''}
                           ${product.is_it_over ? '<span class="label-out-of-stock">Fora de Estoque</span>' : ''}
                           </div>
                           <span class="${product.is_it_over ? 'hide' : ''}">${product.quantity} ${product.unit}</span>
@@ -127,6 +142,52 @@ async function createProductList() {
               </ul>
             `
           }).join('')}
+          <ul class="list-element add-list-list-element">
+            <section class="add-list js-add-list hidden">
+              <div>
+                <h3 class="inline-block add-list-title">Adicionar nova Lista</h3>
+              </div>
+        
+              <form action="" id="js-form-list">
+                <section>
+                  <p>
+                    <label for=""> Nome da Lista:* </label>
+                    <br>
+                    <input type="text" name="name" required>
+                  </p>
+                </section>
+        
+                <section>
+                  <fieldset class="config-fieldset">
+                    <legend>Configurações</legend>
+
+                    <ul class="config-list">
+                      <li>
+                        <label for="">
+                          <input type="checkbox" name="next_buy_list">
+                          Lista para Proximas Compras?
+                        </label>
+                      </li>
+
+                      <li>
+                        <label for="">
+                          <input type="checkbox" name="stock_list">
+                          Lista para Estoque?
+                        </label>
+                      </li>
+                    </ul>
+                  </fieldset>
+                </section>
+          
+                <section>
+                  <p>
+                    <p id="js-success-list-message" class="hide success-message"> Lista criada com sucesso! </p>
+                    <input type="submit" value="Salvar">
+                  </p>
+                </section>
+              </form>
+            </section>
+          <ul>
         <div>
       `
     }
@@ -148,6 +209,7 @@ async function updateProductsComponent() {
 window.addEventListener('DOMContentLoaded', async () => {
   createBuyHistory();
   await createProductList();
+  await createMoveList();
 
   // document.querySelectorAll('#js-modal-product').forEach((element) => {
   //   element.addEventListener('keypress', (e) => {
@@ -165,30 +227,36 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     const formData = new FormData(e.target);
 
-    switch(e.submitter.id) {
-      case 'js-submit-new-product':
-        await window.fetch(`${BASE_API}/create_product`, { body: formData, method: 'POST' });
-        await updateProductsComponent();
-        $('#js-success-product-message').classList.add('show');
-        $('#js-success-product-message').classList.remove('hide');
-
-        setTimeout(() => {
-          $('#js-success-product-message').classList.remove('show');
-          $('#js-success-product-message').classList.add('hide');
-        }, 1000);
-
-        return;
-      case 'js-submit-update-product':
-        await window.fetch(`${BASE_API}/update_product`, { body: formData, method: 'PUT' });
-        await updateProductsComponent();
-        $('#js-success-product-message').classList.add('show');
-        $('#js-success-product-message').classList.remove('hide');
-
-        setTimeout(() => {
-          $('#js-success-product-message').classList.remove('show');
-          $('#js-success-product-message').classList.add('hide');
-        }, 1000);
-        return
+    try {
+      switch(e.submitter.id) {
+        case 'js-submit-new-product':
+          await window.fetch(`${BASE_API}/create_product`, { body: formData, method: 'POST' });
+          await updateProductsComponent();
+          $('#js-success-product-message').classList.add('show');
+          $('#js-success-product-message').classList.remove('hide');
+  
+          setTimeout(() => {
+            $('#js-success-product-message').classList.remove('show');
+            $('#js-success-product-message').classList.add('hide');
+            $('#js-modal-product').classList.add('hide');
+          }, 1000);
+  
+          break;
+        case 'js-submit-update-product':
+          await window.fetch(`${BASE_API}/update_product`, { body: formData, method: 'PUT' });
+          await updateProductsComponent();
+          $('#js-success-product-message').classList.add('show');
+          $('#js-success-product-message').classList.remove('hide');
+  
+          setTimeout(() => {
+            $('#js-success-product-message').classList.remove('show');
+            $('#js-success-product-message').classList.add('hide');
+            $('#js-modal-product').classList.add('hide');
+          }, 1000);
+          break;
+      }
+    } catch (err) {
+      console.log(err);
     }
   });
 
@@ -203,6 +271,56 @@ window.addEventListener('DOMContentLoaded', async () => {
 
     document.querySelector('#js_list_selection').append(opt);
   });
+
+  let listElementScroll = 0;
+  isNavVisible = false;
+  let runningScroll = false;
+
+  const handler = (e) => {
+    if (!runningScroll) {
+      window.requestAnimationFrame(() => {
+        runningScroll = false;
+        
+        if (isNavVisible && e.target.scrollTop > listElementScroll) {
+          window.scrollTo(0, window.scrollY - (e.target.scrollTop - listElementScroll) * -1);
+          e.target.scrollTop = listElementScroll;
+        }
+        
+        if (!isNavVisible && e.target.scrollTop < listElementScroll) {
+          window.scrollTo(0, window.scrollY - (e.target.scrollTop - listElementScroll) * -1);
+          e.target.scrollTop = listElementScroll;
+        }
+
+        listElementScroll = e.target.scrollTop;
+      });
+
+      runningScroll = true;
+    }
+  }
+
+  if (window.innerWidth < 900) {
+    document.querySelectorAll('.list-element').forEach((listElement) => {
+      listElement.addEventListener('scroll', handler);
+    });
+  }
+
+  var options = {
+    root: null,
+    rootMargin: '0px',
+    threshold: [0.00, 1.00]
+  }
+  
+  var menuTopObserver = new IntersectionObserver((data) => {
+    if (!data[0].isIntersecting && data[0].intersectionRatio === 0) {
+      isNavVisible = false;
+    }
+
+    if (data[0].isIntersecting && data[0].intersectionRatio === 1) {
+      isNavVisible = true;
+    }
+  }, options);
+
+  menuTopObserver.observe(document.querySelector('.js-menu'));
 });
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -211,6 +329,7 @@ window.addEventListener('DOMContentLoaded', () => {
     e.stopPropagation();
 
     document.querySelector('#js-modal-product').classList.remove('hide');
+    document.querySelector('#js-product-modal-title').scrollIntoView(false);
     $('#js-product-modal-title').innerHTML = 'Criar Novo Produto';
     $('#js-submit-new-product').classList.remove('hide');
     $('#js-submit-update-product').classList.add('hide');
@@ -225,10 +344,29 @@ window.addEventListener('DOMContentLoaded', () => {
     document.querySelector('#js-product-id-hidden-field').value = '';
   });
 
+  document.querySelector('.js-products').addEventListener('dblclick', async (e) => {
+    if (e.target.id === 'js-delete-list') {
+      e.preventDefault();
+      const listId = e.target.dataset.listId;
+      
+      await window.fetch(`${BASE_API}/delete_list/${listId}`, { method: 'DELETE' });
+      await updateProductsComponent();
+    }
+
+    if (e.target.classList.contains('js-delete-product')) {
+      e.preventDefault();
+      const productId = e.target.dataset.productId;
+      
+      await window.fetch(`${BASE_API}/delete_product/${productId}`, { method: 'DELETE' });
+      await updateProductsComponent();
+    }
+  })
+
   document.querySelector('.js-products').addEventListener('click', async (e) => {
     if (e.target.classList.contains('js-edit-product')) {
       e.preventDefault();
       document.querySelector('#js-modal-product').classList.remove('hide');
+      document.querySelector('#js-product-modal-title').scrollIntoView(false);
       document.querySelector('#js-product-modal-title').innerHTML = 'Editar Produto';
 
       $('#js-submit-new-product').classList.add('hide');
@@ -250,30 +388,6 @@ window.addEventListener('DOMContentLoaded', () => {
       document.querySelector('#js-product-id-hidden-field').value = e.target.dataset.productId;
     }
 
-    if (e.target.id === 'js-delete-list') {
-      e.preventDefault();
-      const listId = e.target.dataset.listId;
-      
-      await window.fetch(`${BASE_API}/delete_list/${listId}`, { method: 'DELETE' });
-      await updateProductsComponent();
-    }
-
-    if (e.target.id === 'js-view-list') {
-      // window.scroll({top: 160, behavior: 'smooth'});
-      $('.js-menu').classList.toggle('hide');
-      $('.js-products-main-title').classList.toggle('hide');
-      $('.js-add-list').classList.toggle('hide');
-      $('.js-products-list-container').classList.toggle('collapse');
-    }
-
-    if (e.target.classList.contains('js-delete-product')) {
-      e.preventDefault();
-      const productId = e.target.dataset.productId;
-      
-      await window.fetch(`${BASE_API}/delete_product/${productId}`, { method: 'DELETE' });
-      await updateProductsComponent();
-    }
-
     if (e.target.classList.contains('js-history-product')) {
       e.preventDefault();
 
@@ -286,53 +400,85 @@ window.addEventListener('DOMContentLoaded', () => {
       $('.js-history-modal').classList.remove('hide');
     }
 
-    if (e.target.id === 'js-show-list-options') {
-      $('.js-move-items-from-form').classList.toggle('hide');
+    if (e.target.classList.contains('js-move-to-other-list-element')) {
+      const moreThanZeroElementIsChecked = [...document.querySelectorAll('input:checked')]
+        .filter(checkbox => checkbox.id.includes('js_move_to_other_list')).length > 0;
+
+      if (moreThanZeroElementIsChecked) {
+        $('.js-move-items-from-form').classList.remove('hide');
+      } else {
+        $('.js-move-items-from-form').classList.add('hide');
+      }
     }
   });
 
   $('.js-history-modal').addEventListener('click', (e) => {
-    if(e.target.classList.contains('js-history-modal')) {
+    if (e.target.classList.contains('js-history-modal')) {
       $('.js-history-modal').classList.add('hide');
     }
   }, false);
 
   $('.js-products').addEventListener('submit', async (e) => {
-    if (e.target.classList.contains('js-move-items-from-form')) {
+    if (e.target.id === 'js-form-list') {
       e.preventDefault();
-      
-      const allProductsChecked = [...document.querySelectorAll('input:checked')]
-        .filter(checkbox => checkbox.id.includes('js_move_to_other_list'));
-      
+  
       const formData = new FormData(e.target);
-      allProductsChecked.forEach((product) => {
-        formData.append(`products[]`, product.value)
-      });
 
-      await window.fetch(`${BASE_API}/move_products_from_list`, { body: formData, method: 'PUT' });
-      updateProductsComponent();
+      try {
+        await window.fetch(`${BASE_API}/create_list`, { body: formData, method: 'POST' });
+        $('#js-success-list-message').classList.remove('hide');
+        setTimeout(() => {
+          $('#js-success-list-message').classList.add('hide');
+        }, 1000);
+        await updateProductsComponent();
+      } catch (err) {
+        console.log(err);
+      }
     }
   });
 
-  $('#js-form-list').addEventListener('submit', async (e) => {
+  document.querySelector('.js-move-itens-list').addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const formData = new FormData(e.target);
+    const allProductsChecked = [...document.querySelectorAll('input:checked')]
+      .filter(checkbox => checkbox.id.includes('js_move_to_other_list'));
+
+    if ($('#js-list-destiny').value === 'move_to_next_buy_feature') {
+      const res = await window.fetch(`${BASE_API}/get_products`);
+      const products = await res.json();
+
+      allProductsChecked.forEach((productElement) => {
+        productElement.checked = false;
+
+        const productId = parseInt(productElement.value);
+
+        const productMatch = products.find((product) => {
+          return product.id === productId;
+        });
+
+        if (productMatch) {
+          window.buyItemComponent.data.items.push({
+            product: productMatch,
+            quantity: 0,
+            value: 0
+          });
+        }
+      });
+
+      $('.js-move-items-from-form').classList.add('hide');
+      e.target.reset();
+
+      return;
+    }
     
-    await window.fetch(`${BASE_API}/create_list`, { body: formData, method: 'POST' });
-    await updateProductsComponent();
-  });
+    const formData = new FormData(e.target);
+    allProductsChecked.forEach((product) => {
+      formData.append(`products[]`, product.value)
+    });
 
-  $('.js-close-create-list-section').addEventListener('click', (e) => {
-    e.preventDefault();
-
-    $('.js-add-list').classList.add('hidden');
-  });
-
-  $('.js-open-create-list-section').addEventListener('click', (e) => {
-    e.preventDefault();
-
-    $('.js-add-list').classList.remove('hidden');
+    await window.fetch(`${BASE_API}/move_products_from_list`, { body: formData, method: 'PUT' });
+    e.target.reset();
+    updateProductsComponent();
   });
 });
 
@@ -345,16 +491,30 @@ async function addBuyItem() {
     template: function (props) {
       return `
         ${props.items.map((item, index) => {
+          const productInput = item.product ? `<input
+            type="text"
+            name="buys[]product_id"
+            list="productSuggestion"
+            required
+            value="${item?.product?.id} - ${item?.product?.name} : ${item?.product?.unit}"
+          >` : `<input
+            type="text"
+            name="buys[]product_id"
+            list="productSuggestion"
+            required
+            value=""
+          >`
+
           return `
             <form class="js-buy-section-form">
               <section class="buy-section flex space-between wrap">
                 <p>
                   <label> Produto:* </label>
                   <br>
-                  <input type="text" name="buys[]product_id" list="productSuggestion">
+                  ${productInput}
                   <datalist id="productSuggestion">
                     ${props.products.map((product) => {
-                      return `<option> ${product.id} - ${product.name} : ${product.unit} </option>`
+                      return `<option> ${product?.id} - ${product?.name} : ${product?.unit} </option>`
                     }).join('')}
                   </datalist>
                 </p>
@@ -386,9 +546,11 @@ async function addBuyItem() {
               </section>
           `
         }).join('')}
-          <div class="text-center">
-            <button class="success" id="js-finish-buy-button">Finalizar Compra</button>
-          </div>
+          ${props.items.length ? `
+            <div class="text-center">
+              <button class="success" id="js-finish-buy-button">Finalizar Compra</button>
+            </div>` : ''
+          }
         </form>
       `
     }
@@ -396,7 +558,6 @@ async function addBuyItem() {
 
   const res = await window.fetch(`${BASE_API}/get_products`);
   const products = await res.json();
-  console.log(products);
 
   window.buyItemComponent.data.products = products;
 
@@ -431,7 +592,6 @@ window.addEventListener('DOMContentLoaded', async () => {
         window.buyItemComponent.data.items = [];
         $('#js-success-buy-message').classList.add('show');
         $('#js-success-buy-message').classList.remove('hide');
-        console.log($('#js-success-buy-message').classList);
         setTimeout(() => {
           $('#js-success-buy-message').classList.remove('show');
           $('#js-success-buy-message').classList.add('hide');

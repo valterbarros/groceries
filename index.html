@@ -16,11 +16,13 @@
   <body class="body-element ">
     <nav class="menu js-menu">
       <a href="#" class="home-item" id="js-products-link">Produtos</a>
-      <a href="#" class="new-product"> Add New Produto</a>
+      <a href="#" class="new-product"> + Adicionar Novo Produto</a>
       <a href="#" class="new-buy" id="js-new-buy-link"> Nova Compra</a>
     </nav>
 
     <div class="js-products-page">
+      <div class="js-move-itens-list move-itens-list"></div>
+
       <div id="js-modal-product" class="hide modal-product">
         <div class="container">
           <form action="" id="js-form-product">
@@ -128,41 +130,6 @@
       <section class="js-products products">
       </section>
 
-      <section class="add-list js-add-list hidden">
-        <div>
-          <h3 class="inline-block add-list-title">Adicionar nova Lista</h3>
-          <button class="js-open-create-list-section open-create-list-section"> Abrir </button>
-        </div>
-  
-        <form action="" id="js-form-list">
-          <section>
-            <p>
-              <label for=""> Nome da Lista:* </label>
-              <input type="text" name="name" required>
-            </p>
-          </section>
-  
-          <section>
-            <label for="">
-              <input type="checkbox" name="next_buy_list">
-              Lista para Proximas Compras?
-            </label>
-
-            <label for="">
-              <input type="checkbox" name="stock_list">
-              Lista para Estoque?
-            </label>
-          </section>
-    
-          <section>
-            <p>
-              <input type="submit" value="Salvar">
-              <button class="js-close-create-list-section close-create-list-section"> Fechar </button>
-            </p>
-          </section>
-        </form>
-      </section>
-
       <section>
         <img class="background-groceries" src="images/background-groceries.png" alt="">
       </section>
@@ -190,5 +157,7 @@
         <img class="background-groceries" src="images/background-groceries.png" alt="">
       </section>
     </div>
+
+    <!-- <div hidden class="move-to-top js-move-to-top"></div> -->
   </body>
 </html>

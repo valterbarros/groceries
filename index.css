@@ -110,6 +110,10 @@ input[type=submit], .success {
   justify-content: space-between;
 }
 
+.align-items-center {
+  align-items: center;
+}
+
 .no-margin {
   margin: 0;
 }
@@ -118,8 +122,12 @@ input[type=submit], .success {
   margin: .5em 0;
 }
 
+.padding-top-07em {
+  padding-top: 0.7em;
+}
+
 .menu {
-  background: blueviolet;
+  background: #8a2be2;
   height: 4em;
   width: 100%;
   display: flex;
@@ -152,9 +160,10 @@ input[type=submit], .success {
 
 .products {
   padding: 0.7em 0.7em 0 0.7em;
+  margin-bottom: 0.7em;
 }
 
-.products ul {
+.products ul:not(.config-list) {
   padding: 0;
   margin: 0;
 }
@@ -176,17 +185,29 @@ input[type=submit], .success {
 }
 
 .item-product {
-  border: 0.1em solid grey;
+  border-radius: 0.3em;
   padding: 0.6em;
-  margin-top: 0.6em;
-  margin-bottom: 0.6em;
-  border-radius: 6px;
   position: relative;
   background: white;
+  margin-left: 0.6em;
+  margin-right: 0.6em;
+}
+
+li:not(:nth-child(2)) .item-product {
+  margin-top: 0.6em;
+  margin-bottom: 0.6em;
 }
 
 .add-list-title {
   margin: 0.8em;
+}
+
+.list-element {
+  background: #eaeaea;
+}
+
+.move-itens-list {
+  margin: 0 1em;
 }
 
 @media screen and (max-width: 900px) {
@@ -204,7 +225,6 @@ input[type=submit], .success {
     z-index: 1;
     background: #eaeaea;
     padding: 0.6em;
-    height: 5em;
     will-change: transform;
   }
 
@@ -212,16 +232,28 @@ input[type=submit], .success {
     position: static;
   }
 
+  .move-to-top::after {
+    content: '▲';
+  }
+
+  .move-to-top {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 4em;
+    height: 4em;
+    background: yellowgreen;
+    border-radius: 50%;
+    position: fixed;
+    bottom: 2%;
+    right: 2%;
+  }
+
   .products-list-container {
     overflow-x: auto;
     scroll-snap-type: x mandatory;
     display: flex;
     column-gap: 10px;
-    max-height: calc(100vh - 45px);
-  }
-
-  .products-list-container.collapse {
-    max-height: 100vh;
   }
 
   .list-element {
@@ -229,7 +261,8 @@ input[type=submit], .success {
     scroll-snap-align: start;
     scroll-snap-stop: always;
     flex: 1;
-    overflow: auto;
+    overflow-y: auto;
+    max-height: 98vh;
   }
 
   .mobile-nav {
@@ -275,17 +308,10 @@ input[type=submit], .success {
 
 @media screen and (min-width: 900px) {
   .products-list-container {
+    overflow: auto;
     display: flex;
     column-gap: 0.6em;
-    max-height: calc(100vh - 240px);
-  }
-
-  .products-list-container.collapse {
-    max-height: calc(100vh - 400px);
-  }
-
-  .products-list-container.hidden {
-    max-height: calc(100vh - 200px);
+    max-height: calc(100vh - 5.4em); /* Navbar heigh + padding + margin = 4.7em */
   }
   
   .list-title {
@@ -301,6 +327,7 @@ input[type=submit], .success {
   .list-element {
     flex: 1;
     overflow: auto;
+    min-width: 25.75em;
   }
 
   /* .body-element {
@@ -314,12 +341,17 @@ input[type=submit], .success {
   .close-create-list-section {
     display: inline-block;
   }
+
+  .add-list-list-elements {
+    position: fixed;
+    width: 100%;
+    bottom: 0;
+    left: 0;
+  }
 }
 
 .move-to-other-list-element:checked + .item-product {
-  border-style: dashed;
-  border-width: 0.06em;
-  background: rgba(138,43,226,0.1);
+  background: rgb(202 232 141);
 }
 
 .item-product-bar {
@@ -370,7 +402,7 @@ input[type=submit], .success {
 
 .add-list {
   background: #eaeaea;
-  padding: 0 0.6em;
+  padding: 0.6em;
 }
 
 .background-groceries {
