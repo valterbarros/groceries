@@ -1,4 +1,6 @@
-const BASE_API = 'http://192.168.0.103:3000';
+import { BASE_API } from './env_master';
+
+const BASE_API = BASE_API;
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function() {
