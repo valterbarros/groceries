@@ -1,6 +1,4 @@
-import { BASE_API } from './env_master';
-
-const BASE_API = BASE_API;
+import { BASE_API  } from './env_master';
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function() {
