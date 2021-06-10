@@ -18,10 +18,8 @@ jobs:
         node-version: '10.x'
     - name: Create the env file
       run: |
-        fs.writeFile('env.js', '${{ secrets.ENV_FILE }}', { flag: 'w+' }, function (err) {
-          if (err) return console.log(err);
-          console.log(${{ secrets.ENV_FILE }});
-        });
+        touch env.js
+        echo ${{ secrets.ENV_FILE }} >> env.js
     - name: Install npm dependencies
       run: npm install
     - name: Run build task
