@@ -24,18 +24,18 @@ jobs:
     #   run: npm run build
     - name: Prepare SSH to work with the remote server
       run: |
-        mkdir ~/.ssh
-        echo '${{ secrets.PUBLIC_SSH_KEY }}' >> ~/.ssh/private_key.pub
-        echo '${{ secrets.SERVER_SSH_KEY }}' >> ~/.ssh/private_key
-        chmod -R go= ~/.ssh
-        ssh -i ~/.ssh/private_key -o StrictHostKeyChecking=no ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}
-    # - name: Deploy to Server
-    #   uses: easingthemes/ssh-deploy@main
-    #   env:
-    #     SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
-    #     ARGS: "-rltgoDzvO --delete"
-    #     SOURCE: "images/"
-    #     REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
-    #     REMOTE_USER: ${{ secrets.REMOTE_USER }}
-    #     TARGET: ${{ secrets.REMOTE_TARGET }}
-    #     EXCLUDE: "/node_modules/"
+        #mkdir ~/.ssh
+        #echo '${{ secrets.PUBLIC_SSH_KEY }}' >> ~/.ssh/private_key.pub
+        #echo '${{ secrets.SERVER_SSH_KEY }}' >> ~/.ssh/private_key
+        #chmod -R go= ~/.ssh
+        #ssh -i ~/.ssh/private_key -o StrictHostKeyChecking=no ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}
+    - name: Deploy to Server
+      uses: easingthemes/ssh-deploy@main
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
+        ARGS: "-rltgoDzvO --delete"
+        SOURCE: "images/"
+        REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+        REMOTE_USER: ${{ secrets.REMOTE_USER }}
+        TARGET: ${{ secrets.REMOTE_TARGET }}
+        EXCLUDE: "/node_modules/"
