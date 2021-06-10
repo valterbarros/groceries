@@ -27,8 +27,7 @@ jobs:
         cd ~ && mkdir .ssh &&
         touch ~/.ssh/known_hosts &&
         echo "${{ secrets.SERVER_SSH_KEY }}" > ~/.ssh/known_hosts &&
-        ssh ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} &&
-        ssh-copy-id ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}
+        ssh ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}
     - name: Deploy to Server
       uses: easingthemes/ssh-deploy@main
       env:
