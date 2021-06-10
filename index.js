@@ -153,7 +153,7 @@ async function createProductList() {
                   <p>
                     <label for=""> Nome da Lista:* </label>
                     <br>
-                    <input type="text" name="name" required>
+                    <input placeholder="Ex: Próxima Compra" type="text" name="name" required>
                   </p>
                 </section>
         
