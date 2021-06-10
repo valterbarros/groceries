@@ -27,7 +27,7 @@ jobs:
         cd .ssh
         echo '${{ secrets.PUBLIC_SSH_KEY }}' >> private_key.pub
         echo '${{ secrets.SERVER_SSH_KEY }}' >> private_key
-        ssh-copy-id -i private_key ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}
+        ssh-copy-id -i StrictHostKeyChecking=no private_key ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}
     # - name: Deploy to Server
     #   uses: easingthemes/ssh-deploy@main
     #   env:
