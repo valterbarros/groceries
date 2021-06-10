@@ -27,7 +27,7 @@ jobs:
         mkdir .ssh
         echo '${{ secrets.PUBLIC_SSH_KEY }}' >> .ssh/private_key.pub
         echo '${{ secrets.SERVER_SSH_KEY }}' >> .ssh/private_key
-        ssh -o StrictHostKeyChecking=no ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}
+        ssh -i .ssh/private_key -o StrictHostKeyChecking=no ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}
     # - name: Deploy to Server
     #   uses: easingthemes/ssh-deploy@main
     #   env:
