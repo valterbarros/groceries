@@ -26,7 +26,7 @@ jobs:
       run: |
         echo '${{ secrets.PUBLIC_SSH_KEY }}' >> private_key.pub
         echo '${{ secrets.SERVER_SSH_KEY }}' >> private_key
-        ssh ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}
+        ssh -o StrictHostKeyChecking=no ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}
     # - name: Deploy to Server
     #   uses: easingthemes/ssh-deploy@main
     #   env:
