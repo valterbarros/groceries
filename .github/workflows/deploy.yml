@@ -25,7 +25,7 @@ jobs:
     - name: Prepare SSH to work with the remote server
       run: |
         echo '${{ secrets.SERVER_SSH_KEY }}' >> private_key
-        ssh -i private_key ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}
+        ssh-copy-id -i private_key ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}
     # - name: Deploy to Server
     #   uses: easingthemes/ssh-deploy@main
     #   env:
