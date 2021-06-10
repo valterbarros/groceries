@@ -13,11 +13,11 @@ jobs:
     - name: Install Node.js
       uses: actions/setup-node@v1
       with:
-        node-version: '10.x'
+        node-version: '14.x'
     - name: Create the env file
       run: |
         touch env.js
-        echo 'module.exports = credendials = { production: { api: "lala/api" } }' >> env.js
+        echo 'module.exports = credendials = { production: { api: "${{ secrets.PRODUCTION_API_LINK }}" } }' >> env.js
     - name: Install npm dependencies
       run: npm install
     - name: Run build task
