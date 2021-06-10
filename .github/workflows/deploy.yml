@@ -24,7 +24,7 @@ jobs:
     #   run: npm run build
     - name: Prepare SSH to work with the remote server
       run: |
-        mkdir .ssh
+        mkdir ~/.ssh
         echo '${{ secrets.PUBLIC_SSH_KEY }}' >> ~/.ssh/private_key.pub
         echo '${{ secrets.SERVER_SSH_KEY }}' >> ~/.ssh/private_key
         chmod -R go= ~/.ssh
