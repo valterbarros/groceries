@@ -9,20 +9,20 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    # - uses: actions/checkout@v1
-    # - name: Install Node.js
-    #   uses: actions/setup-node@v1
-    #   with:
-    #     node-version: '14.x'
-    # - name: Create the env file
-    #   run: |
-    #     touch env.js
-    #     echo 'module.exports = credendials = { production: { api: "${{ secrets.PRODUCTION_API_LINK }}" } }' >> env.js
-    # - name: Install npm dependencies
-    #   run: npm install
-    # - name: Run build task
-    #   run: npm run build
-    #- name: Prepare SSH to work with the remote server
+    - uses: actions/checkout@v1
+    - name: Install Node.js
+      uses: actions/setup-node@v1
+      with:
+        node-version: '14.x'
+    - name: Create the env file
+      run: |
+        touch env.js
+        echo 'module.exports = credendials = { production: { api: "${{ secrets.PRODUCTION_API_LINK }}" } }' >> env.js
+    - name: Install npm dependencies
+      run: npm install
+    - name: Run build task
+      run: npm run build
+    # - name: Prepare SSH to work with the remote server
       #run: |
         #mkdir ~/.ssh
         #echo '${{ secrets.PUBLIC_SSH_KEY }}' >> ~/.ssh/private_key.pub
