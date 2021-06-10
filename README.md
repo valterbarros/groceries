@@ -1,7 +1,7 @@
 # groceries
-an app to organize your buy groceries
+An app to organize your buy groceries
 
-to run
+To run
 
 ```
 npm install
