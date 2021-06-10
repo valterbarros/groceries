@@ -30,7 +30,7 @@ jobs:
         #chmod -R go= ~/.ssh
         #ssh -i ~/.ssh/private_key -o StrictHostKeyChecking=no ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}
     - name: testando
-      run: echo $(ls)
+      run: echo "::workflow-command parameter1={data},parameter2={data}::{$(ls)}"
     - name: Deploy to Server
       uses: easingthemes/ssh-deploy@main
       env:
