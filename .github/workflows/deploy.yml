@@ -16,6 +16,12 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: '10.x'
+    - name: Create the env file
+      run: |
+        fs.writeFile('env.js', ${{ secrets.ENV_FILE }}, { flag: 'w+' }, function (err) {
+          if (err) return console.log(err);
+          console.log(${{ secrets.ENV_FILE }});
+        });
     - name: Install npm dependencies
       run: npm install
     - name: Run build task
