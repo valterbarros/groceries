@@ -22,6 +22,11 @@ jobs:
       run: npm install
     - name: Run build task
       run: npm run build
+    - name: Prepare SSH to work with the remote server
+      run: |
+        cd ~ && mkdir .ssh &&
+        touch ~/.ssh/known_hosts &&
+        echo "${{ secrets.SERVER_SSH_KEY }}" > ~/.ssh/known_hosts
     - name: Deploy to Server
       uses: easingthemes/ssh-deploy@main
       env:
