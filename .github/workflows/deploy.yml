@@ -24,7 +24,6 @@ jobs:
     #   run: npm run build
     - name: Prepare SSH to work with the remote server
       run: |
-        cd .ssh
         echo '${{ secrets.PUBLIC_SSH_KEY }}' >> private_key.pub
         echo '${{ secrets.SERVER_SSH_KEY }}' >> private_key
         ssh-copy-id -i StrictHostKeyChecking=no private_key ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}
