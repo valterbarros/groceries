@@ -2,7 +2,7 @@ import { BASE_API  } from './env_master';
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function() {
-    navigator.serviceWorker.register('/sw.js').then(function(registration) {
+    navigator.serviceWorker.register(new URL('/sw.js')).then(function(registration) {
       console.log(registration);
       // Registration was successful
       console.log('ServiceWorker registration successful with scope: ', registration.scope);

@@ -29,9 +29,9 @@ self.addEventListener('fetch', function(event) {
       }
     )
   );
-})
+});
 
 self.addEventListener('message', function(event) {
   console.log(event.data);
   event.source.postMessage('new message again 2')
-})
+});
