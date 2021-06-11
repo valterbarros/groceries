@@ -11,6 +11,7 @@
     <script src="https://cdn.jsdelivr.net/npm/reefjs@8/dist/reef.min.js"></script>
 
     <link rel="stylesheet" href="index.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📦</text></svg>">
   </head>
 
   <body class="body-element ">
@@ -37,10 +38,11 @@
                 <input type="text" name="name" id="js-product-name-field" required>
               </p>
   
-              <p>
-                <label for=""> Quantidade:* </label>
+              <p class="relative">
+                <label for="js-product-quantity-field"> Quantidade:* </label>
                 <br>
-                <input type="number" name="quantity" id="js-product-quantity-field" step="0.01" required>
+                <input type="number" name="quantity" id="js-product-quantity-field" required step="0.01">
+                <button id="js-product-decrease-quantity" class="alert product-decrease-quantity"> - </button>
               </p>
   
               <p>

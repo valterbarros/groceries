@@ -70,6 +70,12 @@ input[type=submit], .success {
   background: yellowgreen;
 }
 
+button.alert {
+  background: crimson;
+  color: white;
+  font-weight: 800;
+}
+
 .success-message {
   color: yellowgreen;
 }
@@ -184,6 +190,10 @@ input[type=submit], .success {
   display: none;
 }
 
+.relative {
+  position: relative;
+}
+
 .item-product {
   border-radius: 0.3em;
   padding: 0.6em;
@@ -208,6 +218,11 @@ li:not(:nth-child(2)) .item-product {
 
 .move-itens-list {
   margin: 0 1em;
+}
+
+.product-decrease-quantity {
+  position: absolute;
+  right: 0;
 }
 
 @media screen and (max-width: 900px) {

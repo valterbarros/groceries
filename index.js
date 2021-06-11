@@ -272,26 +272,27 @@ window.addEventListener('DOMContentLoaded', async () => {
     document.querySelector('#js_list_selection').append(opt);
   });
 
-  let listElementScroll = 0;
-  isNavVisible = false;
+  isNavVisible = true;
   let runningScroll = false;
 
   const handler = (e) => {
     if (!runningScroll) {
       window.requestAnimationFrame(() => {
         runningScroll = false;
+
+        const listElementScrollTop = (e.target.dataset.lastScrollTop || 0);
         
-        if (isNavVisible && e.target.scrollTop > listElementScroll) {
-          window.scrollTo(0, window.scrollY - (e.target.scrollTop - listElementScroll) * -1);
-          e.target.scrollTop = listElementScroll;
+        if (isNavVisible && e.target.scrollTop > listElementScrollTop) {
+          window.scrollTo(0, window.scrollY - (e.target.scrollTop - listElementScrollTop) * -1);
+          e.target.scrollTo(0, listElementScrollTop);
         }
         
-        if (!isNavVisible && e.target.scrollTop < listElementScroll) {
-          window.scrollTo(0, window.scrollY - (e.target.scrollTop - listElementScroll) * -1);
-          e.target.scrollTop = listElementScroll;
+        if (!isNavVisible && e.target.scrollTop < listElementScrollTop) {
+          window.scrollTo(0, window.scrollY - (e.target.scrollTop - listElementScrollTop) * -1);
+          e.target.scrollTo(0, listElementScrollTop);
         }
 
-        listElementScroll = e.target.scrollTop;
+        e.target.dataset.lastScrollTop = e.target.scrollTop;
       });
 
       runningScroll = true;
@@ -344,6 +345,13 @@ window.addEventListener('DOMContentLoaded', () => {
     document.querySelector('#js-product-id-hidden-field').value = '';
   });
 
+  document.querySelector('#js-modal-product').addEventListener('click', (e) => {
+    if (e.target.id === 'js-modal-product') {
+      e.target.classList.add('hide');
+      document.querySelector('#js-product-id-hidden-field').value = '';
+    }
+  });
+
   document.querySelector('.js-products').addEventListener('dblclick', async (e) => {
     if (e.target.id === 'js-delete-list') {
       e.preventDefault();
@@ -360,7 +368,26 @@ window.addEventListener('DOMContentLoaded', () => {
       await window.fetch(`${BASE_API}/delete_product/${productId}`, { method: 'DELETE' });
       await updateProductsComponent();
     }
-  })
+  });
+
+  const quantityStepRegistry = {
+    unidade: 1.0,
+    gramas: 100.0,
+    kilogramas: 1.0,
+    mililitro: 100.0,
+    litro: 1.0
+  };
+
+  $('#js-product-decrease-quantity').addEventListener('click', (e) => {
+    e.preventDefault();
+
+    const unit = $('#js-product-unit-field').value;
+    const registry = quantityStepRegistry[unit?.toLocaleLowerCase()];
+    e.target.textContent = `-${registry}`;
+
+    const decrementValue = parseInt($('#js-product-quantity-field').value) - registry;
+    $('#js-product-quantity-field').value = decrementValue > 0 ? decrementValue : 0;
+  });
 
   document.querySelector('.js-products').addEventListener('click', async (e) => {
     if (e.target.classList.contains('js-edit-product')) {
@@ -375,8 +402,11 @@ window.addEventListener('DOMContentLoaded', () => {
       const productRequest = await window.fetch(`${BASE_API}/get_product/${e.target.dataset.productId}`);
       const product = await productRequest.json();
 
+      const decrement = quantityStepRegistry[product?.unit?.toLocaleLowerCase()];
+
       $('#js-product-name-field').value = product.name;
       $('#js-product-quantity-field').value = product.quantity;
+      $('#js-product-decrease-quantity').textContent = `-${decrement}`
       $('#js-product-quantity-alert-field').value = product.quantity_alert;
       $('#js-product-unit-field').value = product.unit;
       $('#js-product-priority-field').value = product.priority;
