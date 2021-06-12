@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "An app to control your grosseries buy",
   "scripts": {
-    "build": "node build.js production && parcel build index.html"
+    "build": "node build.js production && parcel build index.html sw.js && node next-build.js"
   },
   "keywords": [
     "utilitaries"
