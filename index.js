@@ -1,16 +1,16 @@
 import { BASE_API  } from './env_master';
 
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', function() {
-    navigator.serviceWorker.register(new URL(`${location}sw.js`)).then(function(registration) {
-      console.log(registration);
-      // Registration was successful
-      console.log('ServiceWorker registration successful with scope: ', registration.scope);
-    }, function(err) {
-      // registration failed :(
-      console.log('ServiceWorker registration failed: ', err);
-    });
-  });
+  // window.addEventListener('load', function() {
+  //   navigator.serviceWorker.register(new URL(`${location.origin}/sw.js`)).then(function(registration) {
+  //     console.log(registration);
+  //     // Registration was successful
+  //     console.log('ServiceWorker registration successful with scope: ', registration.scope);
+  //   }, function(err) {
+  //     // registration failed :(
+  //     console.log('ServiceWorker registration failed: ', err);
+  //   });
+  // });
 }
 
 const $ = function(query) {
@@ -30,7 +30,6 @@ function createBuyHistory() {
       return `
         <div>
           ${props.buys.map((buy) => {
-            console.log(buy);
             return `
               <table>
                 <tr>
@@ -57,7 +56,7 @@ function createBuyHistory() {
 async function createMoveList() {
   window.moveListComponent = new Reef('.js-move-itens-list', {
     data: {
-      lists: []
+      lists: [],
     },
     template: function(props) {
       return `
@@ -206,7 +205,7 @@ async function updateProductsComponent() {
   window.productsComponent.data.lists = lists;
 }
 
-window.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener('poorlinks:loaded:index', async () => {
   createBuyHistory();
   await createProductList();
   await createMoveList();
@@ -240,6 +239,7 @@ window.addEventListener('DOMContentLoaded', async () => {
             $('#js-success-product-message').classList.add('hide');
             $('#js-modal-product').classList.add('hide');
           }, 1000);
+          updateProductList();
   
           break;
         case 'js-submit-update-product':
@@ -303,28 +303,28 @@ window.addEventListener('DOMContentLoaded', async () => {
     document.querySelectorAll('.list-element').forEach((listElement) => {
       listElement.addEventListener('scroll', handler);
     });
-  }
 
-  var options = {
-    root: null,
-    rootMargin: '0px',
-    threshold: [0.00, 1.00]
-  }
+    var options = {
+      root: null,
+      rootMargin: '0px',
+      threshold: [0.00, 1.00]
+    }
+    
+    var menuTopObserver = new IntersectionObserver((data) => {
+      if (!data[0].isIntersecting && data[0].intersectionRatio === 0) {
+        isNavVisible = false;
+      }
   
-  var menuTopObserver = new IntersectionObserver((data) => {
-    if (!data[0].isIntersecting && data[0].intersectionRatio === 0) {
-      isNavVisible = false;
-    }
-
-    if (data[0].isIntersecting && data[0].intersectionRatio === 1) {
-      isNavVisible = true;
-    }
-  }, options);
-
-  menuTopObserver.observe(document.querySelector('.js-menu'));
+      if (data[0].isIntersecting && data[0].intersectionRatio === 1) {
+        isNavVisible = true;
+      }
+    }, options);
+  
+    menuTopObserver.observe(document.querySelector('.js-menu'));
+  }
 });
 
-window.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('poorlinks:loaded:index', () => {
   document.querySelector('.new-product').addEventListener('click', (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -367,6 +367,7 @@ window.addEventListener('DOMContentLoaded', () => {
       
       await window.fetch(`${BASE_API}/delete_product/${productId}`, { method: 'DELETE' });
       await updateProductsComponent();
+      updateProductList();
     }
   });
 
@@ -382,7 +383,7 @@ window.addEventListener('DOMContentLoaded', () => {
     e.preventDefault();
 
     const unit = $('#js-product-unit-field').value;
-    const registry = quantityStepRegistry[unit?.toLocaleLowerCase()];
+    const registry = quantityStepRegistry[unit?.toLocaleLowerCase()] || 0;
     e.target.textContent = `-${registry}`;
 
     const decrementValue = parseInt($('#js-product-quantity-field').value) - registry;
@@ -402,7 +403,7 @@ window.addEventListener('DOMContentLoaded', () => {
       const productRequest = await window.fetch(`${BASE_API}/get_product/${e.target.dataset.productId}`);
       const product = await productRequest.json();
 
-      const decrement = quantityStepRegistry[product?.unit?.toLocaleLowerCase()];
+      const decrement = quantityStepRegistry[product?.unit?.toLocaleLowerCase()] || 0;
 
       $('#js-product-name-field').value = product.name;
       $('#js-product-quantity-field').value = product.quantity;
@@ -487,7 +488,7 @@ window.addEventListener('DOMContentLoaded', () => {
         });
 
         if (productMatch) {
-          window.buyItemComponent.data.items.push({
+          window.masterStore.data.buyComponentItems.push({
             product: productMatch,
             quantity: 0,
             value: 0
@@ -514,13 +515,10 @@ window.addEventListener('DOMContentLoaded', () => {
 
 async function addBuyItem() {
   window.buyItemComponent = new Reef('#js-buy-item', {
-    data: {
-      items: [],
-      products: []
-    },
+    store: window.masterStore,
     template: function (props) {
       return `
-        ${props.items.map((item, index) => {
+        ${props.buyComponentItems.map((item, index) => {
           const productInput = item.product ? `<input
             type="text"
             name="buys[]product_id"
@@ -567,7 +565,7 @@ async function addBuyItem() {
                 <p>
                   <button
                     href="#"
-                    class="js-remove-buy-action"
+                    class="js-remove-buy-action alert"
                     data-index="${index}"
                   >
                     Remover
@@ -576,7 +574,7 @@ async function addBuyItem() {
               </section>
           `
         }).join('')}
-          ${props.items.length ? `
+          ${props.buyComponentItems.length ? `
             <div class="text-center">
               <button class="success" id="js-finish-buy-button">Finalizar Compra</button>
             </div>` : ''
@@ -586,27 +584,37 @@ async function addBuyItem() {
     }
   });
 
-  const res = await window.fetch(`${BASE_API}/get_products`);
-  const products = await res.json();
-
-  window.buyItemComponent.data.products = products;
+  updateProductList();
 
   window.buyItemComponent.render();
 }
 
-window.addEventListener('DOMContentLoaded', async () => {
+async function updateProductList() {
+  const res = await window.fetch(`${BASE_API}/get_products`);
+  const products = await res.json();
+  window.masterStore.data.products = products;
+}
+
+document.addEventListener('poorlinks:loaded:index', async () => {
+  window.masterStore = new Reef.Store({
+    data: {
+      products: [],
+      lists: [],
+      buyComponentItems: []
+    }
+  });
+
   await addBuyItem();
 
-  console.log($('.js-buy-section-form'));
   $('#js-add-new-item-button').addEventListener('click', () => {
-    window.buyItemComponent.data.items.push({ product: null, quantity: 0, value: 0 });
+    window.masterStore.data.buyComponentItems.push({ product: null, quantity: 0, value: 0 });
   });
 
   $('#js-buy-item').addEventListener('click', (e) => {
     if (e.target.classList.contains('js-remove-buy-action')) {
       e.preventDefault();
       const index = e.target.dataset.index;
-      window.buyItemComponent.data.items.splice(index, 1);
+      window.masterStore.data.buyComponentItems.splice(index, 1);
     }
   });
 
@@ -641,4 +649,18 @@ window.addEventListener('DOMContentLoaded', async () => {
     $('.js-products-page').classList.remove('hide');
     $('.js-buy-page').classList.add('hide');
   });
+
+  // $('a[href="/new-buy.html"]').addEventListener('click', async (e) => {
+  //   e.preventDefault();
+  //   const req = await window.fetch('/new-buy.html');
+  //   const htmlPage = await req.text();
+  //   const parser = new DOMParser();
+  //   const doc = parser.parseFromString(htmlPage, 'text/html');
+
+  //   $('#current-page').innerHTML = doc.body.innerHTML;
+  // });
 });
+
+// window.addEventListener('popstate', (event) => {
+//   console.log("location: " + document.location + ", state: " + JSON.stringify(event.state));
+// });
