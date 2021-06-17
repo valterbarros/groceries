@@ -1,6 +1,6 @@
 "use strict";
 
-async function render(url) {
+async function render(url, shouldPushState = true, data = {}) {
   const req = await window.fetch(url);
   const htmlPage = await req.text();
 
@@ -54,9 +54,11 @@ async function render(url) {
     document.body.parentElement.replaceChild(newBody.cloneNode(true), oldBody);
 
     await Promise.all(loadScriptsPromises);
-    history.pushState({},'', url);
+    if (shouldPushState) {
+      history.pushState(data, url.replace('.html', ''), url);
+    }
     const pageName = oldHead.querySelector('[name="page-name"]');
-    console.log(pageName);
+    console.log(url);
     const event = new CustomEvent(`poorlinks:loaded:${pageName.content}`);
     document.dispatchEvent(event);
   });
@@ -87,13 +89,16 @@ window.addEventListener('click', async (e) => {
   }
 });
 
-window.addEventListener('popstate', () => {
-  render(document.location.pathname);
+window.addEventListener('popstate', (e) => {
+  render(document.location.pathname, false);
 });
 
+window.visit = (url, data) => {
+  render(url, true, data);
+}
+
 window.addEventListener('DOMContentLoaded', (e) => {
-  console.log('DOMContentLoaded');
-  const pageNameMeta = document.querySelector('[name=page-name]')
+  const pageNameMeta = document.querySelector('[name=page-name]');
   const event = new CustomEvent(`poorlinks:loaded:${pageNameMeta.content}`);
   document.dispatchEvent(event);
 });
