@@ -7,11 +7,30 @@
     <link rel="manifest" href="/manifest.webmanifest">
     <title>Nova Compra</title>
     <script src="poor_links.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/reefjs@8/dist/reef.min.js"></script>
+    <script src="new-buy.js"></script>
+    <link rel="stylesheet" href="global.css">
+    <link rel="stylesheet" href="new-buy.css">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📦</text></svg>">
     <meta name="page-name" content="new-buy">
   </head>
   <body>
-    Nova Compra
-    <a href="/index.html"> Go to Index</a>
+    <nav class="menu js-menu">
+      <a href="/index.html" class="home-item" id="js-products-link">Produtos</a>
+      <a href="#" class="new-buy current-clicked">Nova Compra (Tela)</a>
+    </nav>
+
+    <h3 class="text-center"> Compras </h3>
+
+    <div id="js-buy-item"></div>
+
+    <div class="text-center padding-top-10 padding-bottom-10">
+      <p id="js-success-buy-message" class="hide success-message"> Compra Finalizada com sucesso! </p>
+      <button class="primary" id="js-add-new-item-button">+ Add Novo Item</button>
+    </div>
+
+    <section>
+      <img class="background-groceries" src="images/background-groceries.png" alt="">
+    </section>
   </body>
 </html>

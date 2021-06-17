@@ -1,0 +1,163 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+* {
+  list-style: none;
+}
+
+body {
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: clamp(0.86rem, 0.8271rem + 0.1647vw, 1rem);
+}
+
+p, h1, h2, h3, h4, hr {
+  margin: 0.6em 0;
+}
+
+ul {
+  margin: 1em 0;
+  padding-left: 3em;
+}
+
+select, input:not([type=file]):not([type=submit]):not([type=checkbox]) {
+  outline: none;
+  border: none;
+  box-sizing: border-box;
+  color: #172B4D;
+  line-height: 1em;
+  font-weight: 400;
+  transition-property: background-color, border-color, box-shadow;
+  transition-duration: 85ms;
+  transition-timing-function: ease;
+  border-radius: 0.1em;
+  padding: 0.5em 0.8em;
+  box-shadow: inset 0 0 0 0.1em #dfe1e6;
+  background-color: #FAFBFC;
+  width: auto;
+  margin-bottom: 0;
+}
+
+input[type=submit], button {
+  line-height: 1.2em;
+  font-weight: 400;
+  box-sizing: border-box;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.1em;
+  cursor: pointer;
+  padding: 0.5em 0.8em;
+  text-decoration: none;
+  background-color: rgba(9, 30, 66, 0.04);
+  box-shadow: none;
+  border: none;
+  transition-property: background-color, border-color, box-shadow;
+  transition-duration: 85ms;
+  transition-timing-function: ease;
+}
+
+button:active, input[type=reset]:active {
+  background: #80808099;
+}
+
+input[type=submit]:active {
+  background: #9acd32c7;
+}
+
+input[type=submit], .success {
+  background: yellowgreen;
+}
+
+button.alert {
+  background: crimson;
+  color: white;
+  font-weight: 800;
+}
+
+.success-message {
+  color: yellowgreen;
+}
+
+.flex {
+  display: flex;
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+.column-gap-10 {
+  column-gap: 0.8em;
+}
+
+.overflow-auto {
+  overflow: auto;
+}
+
+.padding-top-10 {
+  padding-top: 0.6em;
+}
+
+.padding-bottom-10 {
+  padding-bottom: 0.6em;
+}
+
+.inline-block {
+  display: inline-block;
+}
+
+.wrap {
+  flex-wrap: wrap;
+}
+
+.space-between {
+  justify-content: space-between;
+}
+
+.align-items-center {
+  align-items: center;
+}
+
+.no-margin {
+  margin: 0;
+}
+
+.margin-8-0 {
+  margin: .5em 0;
+}
+
+.padding-top-07em {
+  padding-top: 0.7em;
+}
+
+.show {
+  display: block;
+}
+
+.hide {
+  display: none;
+}
+
+.relative {
+  position: relative;
+}
+
+.current-clicked {
+  border-bottom: 0.2em solid currentColor;
+  margin-left: 0.8em;
+  padding-left: 0 !important;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.background-groceries {
+  position: fixed;
+  bottom: 0;
+  z-index: -1;
+  right: 0;
+  opacity: 0.06;
+}

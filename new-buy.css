@@ -1,0 +1,31 @@
+.menu {
+  background: #8a2be2;
+  height: 4em;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  color: white;
+  position: sticky;
+  top: 0;
+  z-index: 3;
+}
+
+.menu :any-link {
+  color: white;
+  text-decoration: none;
+}
+
+.home-item, .new-product, .new-buy {
+  padding-left: 0.8em;
+}
+
+@media screen and (max-width: 900px) {
+  .menu {
+    position: static;
+  }
+}
+
+.buy-section {
+  max-width: 960px;
+  margin: auto;
+}
