@@ -1,25 +1,4 @@
-.menu {
-  background: #8a2be2;
-  height: 4em;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  color: white;
-  position: sticky;
-  top: 0;
-  z-index: 3;
-}
-
-.home-item, .new-product, .new-buy {
-  padding-left: 0.8em;
-}
-
-.menu :any-link {
-  color: white;
-  text-decoration: none;
-}
-
-.modal-product, .history-modal {
+.modal-product, .history-modal, .background-side-menu {
   z-index: 9;
   position: fixed;
   width: 100%;
@@ -79,6 +58,19 @@ li:not(:nth-child(2)) .item-product {
   right: 0;
 }
 
+.move-to-top {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 4em;
+  height: 4em;
+  background: yellowgreen;
+  border-radius: 50%;
+  position: fixed;
+  bottom: 2%;
+  right: 2%;
+}
+
 @media screen and (max-width: 900px) {
   .item-product p, .item-product span {
     margin: 0.3em 0;
@@ -97,27 +89,6 @@ li:not(:nth-child(2)) .item-product {
     will-change: transform;
   }
 
-  .menu {
-    position: static;
-  }
-
-  .move-to-top::after {
-    content: '▲';
-  }
-
-  .move-to-top {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 4em;
-    height: 4em;
-    background: yellowgreen;
-    border-radius: 50%;
-    position: fixed;
-    bottom: 2%;
-    right: 2%;
-  }
-
   .products-list-container {
     overflow-x: auto;
     scroll-snap-type: x mandatory;
@@ -131,7 +102,7 @@ li:not(:nth-child(2)) .item-product {
     scroll-snap-stop: always;
     flex: 1;
     overflow-y: auto;
-    max-height: 98vh;
+    height: 98vh;
   }
 
   .mobile-nav {
@@ -146,32 +117,10 @@ li:not(:nth-child(2)) .item-product {
     padding: 0;
   }
 
-  .modal-product .container{
+  .modal-product .container {
     height: 100vh;
     width: 98%;
     overflow: auto;
-  }
-
-  .buy-section *, .modal-product-fields * {
-    flex: 1 100%;
-  }
-
-  .buy-section {
-    padding: 0 0.6em;
-    background: #eaeaea;
-    margin-bottom: 0.6em !important;
-  }
-
-  .body-element .buy-section input[type="text"],
-  .body-element .buy-section input[type="number"],
-  .body-element .buy-section select {
-    width: 100%;
-  }
-
-  .body-element .modal-product-fields input[type="text"],
-  .body-element .modal-product-fields input[type="number"],
-  .body-element .modal-product-fields select {
-    width: 100%;
   }
 }
 
@@ -198,10 +147,6 @@ li:not(:nth-child(2)) .item-product {
     overflow: auto;
     min-width: 25.75em;
   }
-
-  /* .body-element {
-    overflow: hidden;
-  } */
 
   .open-create-list-section {
     display: inline-block;
@@ -268,4 +213,25 @@ li:not(:nth-child(2)) .item-product {
 .add-list {
   background: #eaeaea;
   padding: 0.6em;
+}
+
+.side-menu {
+  position: fixed;
+  right: 0;
+  top: 0;
+  height: 100vh;
+  background: white;
+  z-index: 11;
+  padding: 0.7em;
+  transition: all 0.2s ease-out;
+  --aside-menu-width: -100vw;
+}
+
+
+.side-menu.side-menu-hide {
+  right: var(--aside-menu-width);
+}
+
+.side-menu.side-menu-collapse {
+  right: 0;
 }

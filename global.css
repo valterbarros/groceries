@@ -96,6 +96,10 @@ button.alert {
   overflow: auto;
 }
 
+.overflow-hidden {
+  overflow: hidden;
+}
+
 .padding-top-10 {
   padding-top: 0.6em;
 }
@@ -160,4 +164,31 @@ button.alert {
   z-index: -1;
   right: 0;
   opacity: 0.06;
+}
+
+.menu {
+  background: #8a2be2;
+  height: 4em;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  color: white;
+  position: sticky;
+  top: 0;
+  z-index: 3;
+}
+
+.menu :any-link {
+  color: white;
+  text-decoration: none;
+}
+
+.home-item, .new-product, .new-buy {
+  padding-left: 0.8em;
+}
+
+@media screen and (max-width: 900px) {
+  .menu {
+    position: static;
+  }
 }
