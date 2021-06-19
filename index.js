@@ -17,6 +17,46 @@ const $ = function(query) {
   return document.querySelector(query);
 }
 
+function createSideMenu() {
+  const sideMenu = new Reef('#js-side-menu', {
+    template: function(props) {
+      return `
+        <form action="" id="js-side-menu-form">
+          <section>
+            <p>
+              <label for="js-filter-product-name"> Nome do produto: </label>
+              <br>
+              <input id="js-filter-product-name" name="search" type="search">
+            </p>
+
+            <fieldset class="config-fieldset">
+              <legend>Filtros</legend>
+              <ul>
+                <li>
+                  <label for="is_low_amount_field">
+                    <input id="is_low_amount_field" type="checkbox" name="is_low_amount" value="true">
+                    Apenas em Baixa quantidade
+                  </label>
+                </li>
+              </ul>
+            </fieldset>
+          </section>
+
+          <section>
+            <p>
+              <p id="js-success-filter-message" class="hide success-message"> Busca concluida! </p>
+              <input type="submit" value="Buscar">
+              <button id="js-close-side-menu"> Fechar </button>
+            </p>
+          </section>
+        </form>
+      `;
+    }
+  });
+
+  sideMenu.render();
+}
+
 function createBuyHistory() {
   window.historyComponent = new Reef('.js-history-container', {
     data: {
@@ -197,6 +237,10 @@ async function createProductList() {
   const listsResponse = await window.fetch(`${BASE_API}/get_lists`);
   const lists = await listsResponse.json();
   productsComponent.data.lists = lists;
+
+  window.addEventListener('update-list-data', (e) => {
+    productsComponent.data.lists = e.detail.lists;
+  })
 }
 
 async function updateProductsComponent() {
@@ -209,6 +253,7 @@ document.addEventListener('poorlinks:loaded:index', async () => {
   createBuyHistory();
   await createProductList();
   await createMoveList();
+  createSideMenu();
 
   // document.querySelectorAll('#js-modal-product').forEach((element) => {
   //   element.addEventListener('keypress', (e) => {
@@ -282,13 +327,14 @@ document.addEventListener('poorlinks:loaded:index', async () => {
 
         const listElementScrollTop = (e.target.dataset.lastScrollTop || 0);
         
-        if (isNavVisible && e.target.scrollTop > listElementScrollTop) {
-          window.scrollTo(0, window.scrollY - (e.target.scrollTop - listElementScrollTop) * -1);
-          e.target.scrollTo(0, listElementScrollTop);
-        }
-        
-        if (!isNavVisible && e.target.scrollTop < listElementScrollTop) {
-          window.scrollTo(0, window.scrollY - (e.target.scrollTop - listElementScrollTop) * -1);
+        if ((isNavVisible && e.target.scrollTop > listElementScrollTop) ||
+          (!isNavVisible && e.target.scrollTop < listElementScrollTop)) {
+          window.scroll({
+            left: 0,
+            top: (window.scrollY - (e.target.scrollTop - listElementScrollTop) * -1),
+            behavior: 'auto'
+          });
+
           e.target.scrollTo(0, listElementScrollTop);
         }
 
@@ -513,5 +559,48 @@ document.addEventListener('poorlinks:loaded:index', () => {
     e.target.reset();
     updateProductsComponent();
   });
-});
 
+  const toggleSideMenu = function(show) {
+    if (show) {
+      $('body').classList.add('overflow-hidden');
+      $('.js-background-side-menu').classList.remove('hide');
+      $('#js-side-menu').classList.add('side-menu-collapse');
+      $('#js-side-menu').classList.remove('side-menu-hide');
+    } else {
+      $('body').classList.remove('overflow-hidden');
+      $('.js-background-side-menu').classList.add('hide');
+      $('#js-side-menu').classList.remove('side-menu-collapse');
+      $('#js-side-menu').classList.add('side-menu-hide');
+    }
+  }
+
+  $('.js-open-side-menu').addEventListener('click', () => {
+    toggleSideMenu(true);
+  });
+
+  $('.js-background-side-menu').addEventListener('click', () => {
+    toggleSideMenu(false);
+  });
+
+  $('#js-side-menu').addEventListener('reef:render', (e) => {
+    e.target.style.setProperty('--aside-menu-width', `-${CSS.px(e.target.offsetWidth)}`);
+
+    $('#js-close-side-menu').addEventListener('click', (e) => {
+      e.preventDefault();
+
+      toggleSideMenu(false);
+    });
+
+    $('#js-side-menu-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData(e.target);
+
+      const res = await window.fetch(`${BASE_API}/search_products`, { body: formData, method: 'POST' });
+      const listsWithProducts = await res.json();
+
+      const ce = new CustomEvent('update-list-data', { detail: { lists: listsWithProducts } });
+      window.dispatchEvent(ce);
+    });
+  });
+});

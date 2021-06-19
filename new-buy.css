@@ -1,27 +1,24 @@
-.menu {
-  background: #8a2be2;
-  height: 4em;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  color: white;
-  position: sticky;
-  top: 0;
-  z-index: 3;
-}
-
-.menu :any-link {
-  color: white;
-  text-decoration: none;
-}
-
-.home-item, .new-product, .new-buy {
-  padding-left: 0.8em;
-}
-
 @media screen and (max-width: 900px) {
-  .menu {
-    position: static;
+  .buy-section *, .modal-product-fields * {
+    flex: 1 100%;
+  }
+
+  .buy-section {
+    padding: 0 0.6em;
+    background: #eaeaea;
+    margin-bottom: 0.6em !important;
+  }
+
+  .body-element .buy-section input[type="text"],
+  .body-element .buy-section input[type="number"],
+  .body-element .buy-section select {
+    width: 100%;
+  }
+
+  .body-element .modal-product-fields input[type="text"],
+  .body-element .modal-product-fields input[type="number"],
+  .body-element .modal-product-fields select {
+    width: 100%;
   }
 }
 

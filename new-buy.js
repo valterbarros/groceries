@@ -11,13 +11,13 @@ async function addBuyItem() {
       return `
         ${props.buyComponentItems.map((item, index) => {
           const productInput = item.product ? `<input
-            type="text"
+            type="search"
             name="buys[]product_id"
             list="productSuggestion"
             required
             value="${item?.product?.id} - ${item?.product?.name} : ${item?.product?.unit}"
           >` : `<input
-            type="text"
+            type="search"
             name="buys[]product_id"
             list="productSuggestion"
             required
