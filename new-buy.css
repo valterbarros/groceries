@@ -11,12 +11,14 @@
 
   .body-element .buy-section input[type="text"],
   .body-element .buy-section input[type="number"],
+  .body-element .buy-section input[type="search"],
   .body-element .buy-section select {
     width: 100%;
   }
 
   .body-element .modal-product-fields input[type="text"],
   .body-element .modal-product-fields input[type="number"],
+  .body-element .buy-section input[type="search"],
   .body-element .modal-product-fields select {
     width: 100%;
   }

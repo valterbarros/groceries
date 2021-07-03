@@ -1,16 +1,16 @@
 import { BASE_API  } from './env_master';
 
 if ('serviceWorker' in navigator) {
-  // window.addEventListener('load', function() {
-  //   navigator.serviceWorker.register(new URL(`${location.origin}/sw.js`)).then(function(registration) {
-  //     console.log(registration);
-  //     // Registration was successful
-  //     console.log('ServiceWorker registration successful with scope: ', registration.scope);
-  //   }, function(err) {
-  //     // registration failed :(
-  //     console.log('ServiceWorker registration failed: ', err);
-  //   });
-  // });
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register(new URL(`${location.origin}/sw.js`)).then(function(registration) {
+      // console.log(registration);
+      // Registration was successful
+      // console.log('ServiceWorker registration successful with scope: ', registration.scope);
+    }, function(err) {
+      // registration failed :(
+      // console.log('ServiceWorker registration failed: ', err);
+    });
+  });
 }
 
 const $ = function(query) {
@@ -40,13 +40,30 @@ function createSideMenu() {
                 </li>
               </ul>
             </fieldset>
+
+            <p>
+              Compras:
+            </p>
+
+            <p>
+              <label for="js-filter-product-initial-date"> Data Inicial: </label>
+              <br>
+              <input id="js-filter-product-initial-date" type="date" name="initial_date" id="datetime">
+            </p>
+
+            <p>
+              <label for="js-filter-product-final-date"> Data Final: </label>
+              <br>
+              <input type="date" name="final_date" id="js-filter-product-final-date">
+            </p>
           </section>
 
           <section>
             <p>
-              <p id="js-success-filter-message" class="hide success-message"> Busca concluida! </p>
               <input type="submit" value="Buscar">
               <button id="js-close-side-menu"> Fechar </button>
+              <button id="js-reset-side-menu"> Limpar </button>
+              <p id="js-success-filter-message" class="hide success-message"> Busca concluida! </p>
             </p>
           </section>
         </form>
@@ -63,31 +80,38 @@ function createBuyHistory() {
       buys: []
     },
     template: function(props) {
+      // console.log(props.date);
+      // console.log(props.date2);
       if (!props.buys.length) {
         return `<div> Esse produto ainda não possui historico</div>`;
       }
 
       return `
         <div>
-          ${props.buys.map((buy) => {
-            return `
-              <table>
-                <tr>
-                  <th>Produto</th>
-                  <th>Quantidade</th>
-                  <th colspan="2">Valor</th>
-                </tr>
-                <tr>
-                  <td>${buy.product}</td>
+          <h2 class="text-center"> ${props.buys[0]?.product} </h2>
+          <table width="100%">
+            <tr class="text-center">
+              <th>Quantidade</th>
+              <th>Valor</th>
+              <th> Data </th>
+            </tr>
+            ${props.buys.map((buy) => {
+              console.log(buy.created_at);
+              const date = new Date(buy.created_at).toLocaleString();
+
+              return `
+                <tr class="text-center">
                   <td>${buy.quantity || '-'}</td>
                   <td>R$ ${buy.value || '-'}</td>
+                  <td>${date || '-'}</td>
                 </tr>
-              <table>
-            `
-          }).join('')}
+                `
+            }).join('')}
+          <table>
         </div>
       `
-    }
+    },
+    allowHTML: true
   });
 
   window.historyComponent.render();
@@ -100,7 +124,7 @@ async function createMoveList() {
     },
     template: function(props) {
       return `
-        <form class="js-move-items-from-form hide padding-top-07em">
+        <form class="js-move-items-from-form hide">
           <label>Selecione para onde deseja mover os itens</label>
           <br>
           <select name="list_destiny" id="js-list-destiny" required pattern="/d+">
@@ -117,7 +141,10 @@ async function createMoveList() {
             }
             </optgroup>
           </select>
-          <input type="submit" value="Confirmar">
+          <p>
+            <input type="submit" value="Confirmar">
+            <button id="js-reset-selected-elements"> Cancelar </button>
+          </p>
         </form>
       `
     }
@@ -131,7 +158,7 @@ async function createMoveList() {
 }
 
 async function createProductList() {
-  window.productsComponent = new Reef('.js-products', {
+  const productsComponent = new Reef('.js-products', {
     data: {
       lists: []
     },
@@ -148,7 +175,7 @@ async function createProductList() {
                     ${list.stock_list ? '(Lista: Estoque)' : ''}
                   </h4>
                   <span>
-                    <a id="js-delete-list" data-list-id="${list.id}" href="#">Apagar</a>
+                    <a id="js-delete-list" data-no-poor-links data-list-id="${list.id}" href="#">Apagar</a>
                   </span>
                 </li>
                 
@@ -156,7 +183,12 @@ async function createProductList() {
                   return `
                     <li>
                       <label for="js_move_to_other_list_${product.id}">
-                        <input type="checkbox" class="move-to-other-list-element js-move-to-other-list-element hide" id="js_move_to_other_list_${product.id}" value="${product.id}">
+                        <input
+                          type="checkbox"
+                          class="move-to-other-list-element js-move-to-other-list-element hide"
+                          id="js_move_to_other_list_${product.id}"
+                          value="${product.id}"
+                        >
                         <div class="item-product">
                           <p>${product.name}</p>
                           <div>
@@ -167,9 +199,9 @@ async function createProductList() {
                           <span class="${product.is_it_over ? 'hide' : ''}">${product.quantity} ${product.unit}</span>
                           <span>R$ ${product.last_buy_value}</span>
                           <p>
-                            <a data-product-id="${product.id}" class="js-delete-product" href="#">Apagar</a>
-                            <a data-product-id="${product.id}" href="#" class="js-edit-product">Editar</a>
-                            <a data-product-id="${product.id}" href="#" class="js-history-product">Historico de Compras</a>
+                            <button data-product-id="${product.id}" class="js-delete-product text-alert" href="#">Apagar</button>
+                            <button data-product-id="${product.id}" href="#" class="js-edit-product">Editar</button>
+                            <button data-product-id="${product.id}" href="#" class="js-history-product">Compras</button>
                           </p>
 
                           <div class="item-product-bar" style="width: ${product.percentage}%"></div>
@@ -240,13 +272,14 @@ async function createProductList() {
 
   window.addEventListener('update-list-data', (e) => {
     productsComponent.data.lists = e.detail.lists;
-  })
+  });
 }
 
 async function updateProductsComponent() {
   const listsResponse = await window.fetch(`${BASE_API}/get_lists`);
   const lists = await listsResponse.json();
-  window.productsComponent.data.lists = lists;
+  const updateEvent = new CustomEvent('update-list-data', { detail: { lists } });
+  window.dispatchEvent(updateEvent);
 }
 
 document.addEventListener('poorlinks:loaded:index', async () => {
@@ -272,32 +305,36 @@ document.addEventListener('poorlinks:loaded:index', async () => {
     const formData = new FormData(e.target);
 
     try {
+      let transitionHandle;
+
       switch(e.submitter.id) {
         case 'js-submit-new-product':
           await window.fetch(`${BASE_API}/create_product`, { body: formData, method: 'POST' });
           await updateProductsComponent();
           $('#js-success-product-message').classList.add('show');
-          $('#js-success-product-message').classList.remove('hide');
-  
-          setTimeout(() => {
-            $('#js-success-product-message').classList.remove('show');
-            $('#js-success-product-message').classList.add('hide');
+
+          transitionHandle = (e) => {
             $('#js-modal-product').classList.add('hide');
-          }, 1000);
-          updateProductList();
-  
+            $('body').classList.remove('overflow-hidden');
+            $('#js-success-product-message').classList.remove('show');
+            e.target.removeEventListener('transitionend', transitionHandle);
+          }
+
+          $('#js-success-product-message').addEventListener('transitionend', transitionHandle);
           break;
         case 'js-submit-update-product':
           await window.fetch(`${BASE_API}/update_product`, { body: formData, method: 'PUT' });
           await updateProductsComponent();
           $('#js-success-product-message').classList.add('show');
-          $('#js-success-product-message').classList.remove('hide');
-  
-          setTimeout(() => {
-            $('#js-success-product-message').classList.remove('show');
-            $('#js-success-product-message').classList.add('hide');
+
+          transitionHandle = (e) => {
             $('#js-modal-product').classList.add('hide');
-          }, 1000);
+            $('body').classList.remove('overflow-hidden');
+            $('#js-success-product-message').classList.remove('show');
+            e.target.removeEventListener('transitionend', transitionHandle);
+          }
+
+          $('#js-success-product-message').addEventListener('transitionend', transitionHandle);
           break;
       }
     } catch (err) {
@@ -319,23 +356,34 @@ document.addEventListener('poorlinks:loaded:index', async () => {
 
   isNavVisible = true;
   let runningScroll = false;
+  let forcedScrollTop = false;
 
   const handler = (e) => {
     if (!runningScroll) {
       window.requestAnimationFrame(() => {
         runningScroll = false;
 
-        const listElementScrollTop = (e.target.dataset.lastScrollTop || 0);
-        
+        if (!e.target.dataset.lastScrollTop) {
+          e.target.dataset.lastScrollTop = e.target.scrollTop;
+          return;
+        }
+
+        const listElementScrollTop = parseFloat(e.target.dataset.lastScrollTop || 0);
+
         if ((isNavVisible && e.target.scrollTop > listElementScrollTop) ||
           (!isNavVisible && e.target.scrollTop < listElementScrollTop)) {
+          forcedScrollTop = false;
           window.scroll({
-            left: 0,
             top: (window.scrollY - (e.target.scrollTop - listElementScrollTop) * -1),
             behavior: 'auto'
           });
 
           e.target.scrollTo(0, listElementScrollTop);
+        }
+
+        if (!forcedScrollTop && !isNavVisible && e.target.scrollTop > listElementScrollTop) {
+          e.target.scrollIntoView();
+          forcedScrollTop = true;
         }
 
         e.target.dataset.lastScrollTop = e.target.scrollTop;
@@ -355,7 +403,7 @@ document.addEventListener('poorlinks:loaded:index', async () => {
       rootMargin: '0px',
       threshold: [0.00, 1.00]
     }
-    
+
     var menuTopObserver = new IntersectionObserver((data) => {
       if (!data[0].isIntersecting && data[0].intersectionRatio === 0) {
         isNavVisible = false;
@@ -365,7 +413,7 @@ document.addEventListener('poorlinks:loaded:index', async () => {
         isNavVisible = true;
       }
     }, options);
-  
+
     menuTopObserver.observe(document.querySelector('.js-menu'));
   }
 });
@@ -376,6 +424,7 @@ document.addEventListener('poorlinks:loaded:index', () => {
     e.stopPropagation();
 
     document.querySelector('#js-modal-product').classList.remove('hide');
+    $('body').classList.add('overflow-hidden');
     document.querySelector('#js-product-modal-title').scrollIntoView(false);
     $('#js-product-modal-title').innerHTML = 'Criar Novo Produto';
     $('#js-submit-new-product').classList.remove('hide');
@@ -389,12 +438,14 @@ document.addEventListener('poorlinks:loaded:index', () => {
 
     document.querySelector('#js-modal-product').classList.add('hide');
     document.querySelector('#js-product-id-hidden-field').value = '';
+    $('body').classList.remove('overflow-hidden');
   });
 
   document.querySelector('#js-modal-product').addEventListener('click', (e) => {
     if (e.target.id === 'js-modal-product') {
       e.target.classList.add('hide');
       document.querySelector('#js-product-id-hidden-field').value = '';
+      $('body').classList.remove('overflow-hidden');
     }
   });
 
@@ -413,7 +464,6 @@ document.addEventListener('poorlinks:loaded:index', () => {
       
       await window.fetch(`${BASE_API}/delete_product/${productId}`, { method: 'DELETE' });
       await updateProductsComponent();
-      updateProductList();
     }
   });
 
@@ -440,6 +490,7 @@ document.addEventListener('poorlinks:loaded:index', () => {
     if (e.target.classList.contains('js-edit-product')) {
       e.preventDefault();
       document.querySelector('#js-modal-product').classList.remove('hide');
+      $('body').classList.add('overflow-hidden');
       document.querySelector('#js-product-modal-title').scrollIntoView(false);
       document.querySelector('#js-product-modal-title').innerHTML = 'Editar Produto';
 
@@ -471,9 +522,10 @@ document.addEventListener('poorlinks:loaded:index', () => {
       const productId = e.target.dataset.productId;
 
       const res = await window.fetch(`${BASE_API}/get_product_buys/${productId}`);
-      const buys = await res.json();
 
-      window.historyComponent.data.buys = buys;
+      const buysJson = await res.json();
+
+      window.historyComponent.data.buys = buysJson;
       $('.js-history-modal').classList.remove('hide');
     }
 
@@ -486,6 +538,10 @@ document.addEventListener('poorlinks:loaded:index', () => {
       } else {
         $('.js-move-items-from-form').classList.add('hide');
       }
+    }
+
+    if (e.target.id === 'js-delete-list') {
+      e.preventDefault();
     }
   });
 
@@ -560,6 +616,21 @@ document.addEventListener('poorlinks:loaded:index', () => {
     updateProductsComponent();
   });
 
+  $('.js-move-itens-list').addEventListener('reef:render', () => {
+    $('#js-reset-selected-elements').addEventListener('click', (e) => {
+      e.preventDefault();
+  
+      [...document.querySelectorAll('input:checked')]
+        .filter(checkbox => checkbox.id.includes('js_move_to_other_list'))
+        .forEach((c) => {
+          c.checked = false;
+        });
+  
+      e.target.form.reset();
+      $('.js-move-items-from-form').classList.add('hide');
+    });
+  });
+
   const toggleSideMenu = function(show) {
     if (show) {
       $('body').classList.add('overflow-hidden');
@@ -589,6 +660,13 @@ document.addEventListener('poorlinks:loaded:index', () => {
       e.preventDefault();
 
       toggleSideMenu(false);
+    });
+
+    $('#js-reset-side-menu').addEventListener('click', async (e) => {
+      e.preventDefault();
+      e.target.form.reset();
+
+      await updateProductsComponent();
     });
 
     $('#js-side-menu-form').addEventListener('submit', async (e) => {

@@ -81,7 +81,7 @@ function copyElementAttributes(destinationElement, sourceElement) {
 }
 
 window.addEventListener('click', async (e) => {
-  if (e.target.tagName.toLowerCase() === 'a' && !e.defaultPrevented) {
+  if (e.target.tagName.toLowerCase() === 'a' && !e.defaultPrevented && !Object.keys(e.target.dataset).includes('noPoorLinks')) {
     e.preventDefault();
     
     const url = e.target.href;
