@@ -10,7 +10,7 @@
 }
 
 .products {
-  padding: 0.7em 0.7em 0 0.7em;
+  padding: 0 0.7em 0 0.7em;
   margin-bottom: 0.7em;
 }
 
@@ -62,8 +62,8 @@ li:not(:nth-child(2)) .item-product {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 4em;
-  height: 4em;
+  width: 3.5em;
+  height: 3.5em;
   background: yellowgreen;
   border-radius: 50%;
   position: fixed;
@@ -186,15 +186,18 @@ li:not(:nth-child(2)) .item-product {
 }
 
 .label-priority-1 {
-  background: red;
+  color: red;
+  border: 0.1em solid red;
 }
 
 .label-priority-2 {
-  background: orange;
+  color: orange;
+  border: 0.1em solid orange;
 }
 
 .label-priority-3 {
-  background: #00c2e0;
+  color: #00c2e0;
+  border: 0.1em solid #00c2e0;
 }
 
 .config-fieldset {
@@ -202,7 +205,7 @@ li:not(:nth-child(2)) .item-product {
 }
 
 .label-low-amount {
-  background: yellow;
+  background: rgb(241, 241, 35);
   color: black;
 }
 

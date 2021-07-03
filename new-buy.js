@@ -13,12 +13,14 @@ async function addBuyItem() {
           const productInput = item.product ? `<input
             type="search"
             name="buys[]product_id"
+            class="js-product-query-search"
             list="productSuggestion"
             required
             value="${item?.product?.id} - ${item?.product?.name} : ${item?.product?.unit}"
           >` : `<input
             type="search"
             name="buys[]product_id"
+            class="js-product-query-search"
             list="productSuggestion"
             required
             value=""
@@ -33,7 +35,13 @@ async function addBuyItem() {
                   ${productInput}
                   <datalist id="productSuggestion">
                     ${props.products.map((product) => {
-                      return `<option> ${product?.id} - ${product?.name} : ${product?.unit} </option>`
+                      return `
+                        <option
+                          reef-value="${product?.id} - ${product?.name} : ${product?.unit}"
+                        >
+                          ${product?.escaped_value}
+                        </option>
+                      `
                     }).join('')}
                   </datalist>
                 </p>
@@ -75,7 +83,9 @@ async function addBuyItem() {
     }
   });
 
-  updateProductList();
+  window.addEventListener('update-product-data', (e) => {
+    window.masterStore.data.products = e.detail.products;
+  });
 
   window.buyItemComponent.render();
 }
@@ -132,6 +142,31 @@ document.addEventListener('poorlinks:loaded:new-buy', async () => {
         }, 1000)
       } catch (err) {
         console.log(err);
+      }
+    }
+  });
+
+  let debounceSearch = false;
+
+  $('#js-buy-item').addEventListener('input', async (e) => {
+    if (e.target.classList.contains('js-product-query-search')) {
+      if (!debounceSearch) {
+        debounceSearch = true;
+
+        setTimeout(async () => {
+          if (e.target.value) {
+            const res = await window.fetch(`${BASE_API}/get_products_by_name/${e.target.value}`);
+            const products = await res.json();
+    
+            const ce = new CustomEvent('update-product-data', { detail: { products } });
+            window.dispatchEvent(ce);
+          } else {
+            const ce = new CustomEvent('update-product-data', { detail: { products: [] } });
+            window.dispatchEvent(ce);
+          }
+
+          debounceSearch = false;
+        }, 500);
       }
     }
   });
