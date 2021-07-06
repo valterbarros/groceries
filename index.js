@@ -80,8 +80,6 @@ function createBuyHistory() {
       buys: []
     },
     template: function(props) {
-      // console.log(props.date);
-      // console.log(props.date2);
       if (!props.buys.length) {
         return `<div> Esse produto ainda não possui historico</div>`;
       }
@@ -96,7 +94,6 @@ function createBuyHistory() {
               <th> Data </th>
             </tr>
             ${props.buys.map((buy) => {
-              console.log(buy.created_at);
               const date = new Date(buy.created_at).toLocaleString();
 
               return `
