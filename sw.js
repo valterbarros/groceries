@@ -8,7 +8,7 @@ var filesToCache = [
   'new-buy.css',
   '/images/icons-192.png',
   '/images/icons-512.png',
-  '/'
+  '/',
 ];
 
 self.addEventListener('install', function(e) {
