@@ -1,4 +1,5 @@
-var cacheName = 'shell-content2';
+const productionUrl = 'groceries.valterbarros.com';
+var cacheName = 'shell-content3';
 var filesToCache = [
   'index.html',
   'index.js',
@@ -21,17 +22,16 @@ self.addEventListener('install', function(e) {
   );
 });
 
-self.addEventListener('fetch', function(event) {
+self.addEventListener('fetch', async function(event) {
   event.respondWith(
-    caches.match(event.request)
-    .then(async function(response) {
-        // Cache hit - return response
-        if (response) {
-          return response;
-        }
-        return fetch(event.request);
+    caches.open(cacheName).then(async (cache) => {
+      const response = await cache.match(event.request)
+      // Cache hit - return response
+      if (response && location.origin.includes(productionUrl)) {
+        return response;
       }
-    )
+      return fetch(event.request);
+    })
   );
 });
 

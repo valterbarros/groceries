@@ -4,7 +4,7 @@ const folderPath = path.join(__dirname, '/dist');
 
 const filesToCache = fs.readdirSync(folderPath).map(fileName => {
   return `"${fileName}"`
-}).filter((fileName) => !fileName.includes('.map') && !fileName.includes('.webmanifest'));
+}).filter((fileName) => !fileName.includes('.map') && !fileName.includes('.webmanifest') && !fileName.includes('sw'));
 
 fs.readFile('./dist/sw.js', 'utf8', async function(err, data) {
   const regexToReplace = new RegExp(/(?!['"][\w\s]*(@parcel|PARCEL|parcel|HMRServer|hmrserver))['"][^'"\]]+(\.css|\.js|\.png|\.html|\.svg)['"]{1}/, 'g');
