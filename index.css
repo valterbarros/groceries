@@ -226,7 +226,7 @@ li:not(:nth-child(2)) .item-product {
   background: white;
   z-index: 11;
   padding: 0.7em;
-  transition: all 0.2s ease-out;
+  transition: right 0.2s ease-out;
   --aside-menu-width: -100vw;
 }
 
