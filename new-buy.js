@@ -4,124 +4,162 @@ const $ = function(query) {
   return document.querySelector(query);
 }
 
-async function addBuyItem() {
-  window.buyItemComponent = new Reef('#js-buy-item', {
-    store: window.masterStore,
+function addBuyItem() {
+  const buyItemComponent = new Reef('#js-buy-item', {
+    data: {
+      items: []
+    },
     template: function (props) {
       return `
-        ${props.buyComponentItems.map((item, index) => {
-          const productInput = item.product ? `<input
-            type="search"
-            name="buys[]product_id"
-            class="js-product-query-search"
-            list="productSuggestion"
-            required
-            value="${item?.product?.id} - ${item?.product?.name} : ${item?.product?.unit}"
-          >` : `<input
-            type="search"
-            name="buys[]product_id"
-            class="js-product-query-search"
-            list="productSuggestion"
-            required
-            value=""
-          >`
+      <form class="js-buy-section-form">
+        ${props.items.map((item, index) => {
+          let productInput = '';
+
+          if (item.product) {
+            productInput = `<input
+              type="search"
+              name="buys[]product_id"
+              class="js-product-query-search"
+              list="productSuggestion"
+              required
+              data-index="${index}"
+              reef-value="${item?.product?.id} - ${item?.product?.name} : ${item?.product?.unit}"
+            >`;
+          } else {
+            productInput = `<input
+              type="search"
+              name="buys[]product_id"
+              class="js-product-query-search"
+              list="productSuggestion"
+              required
+              data-index="${index}"
+              value=""
+            >`;
+          }
 
           return `
-            <form class="js-buy-section-form">
-              <section class="buy-section flex space-between wrap">
-                <p>
-                  <label> Produto:* </label>
-                  <br>
-                  ${productInput}
-                  <datalist id="productSuggestion">
-                    ${props.products.map((product) => {
-                      return `
-                        <option
-                          reef-value="${product?.id} - ${product?.name} : ${product?.unit}"
-                        >
-                          ${product?.escaped_value}
-                        </option>
-                      `
-                    }).join('')}
-                  </datalist>
-                </p>
-                <p>
-                  <label> Quantidade:* </label>
-                  <br>
-                  <input type="number" name="buys[]quantity" step="0.01" required>
-                </p>
-                <p>
-                  <label> Valor:* </label>
-                  <br>
-                  <input type="number" name="buys[]value" step="0.01" required>$
-                </p>
-                <p>
-                  <label>
-                    <input type="checkbox" name="buys[]is_move_to_stock" checked value="true">
-                    Mover para Estoque?*
-                  </label>
-                </p>
-                <p>
-                  <button
-                    href="#"
-                    class="js-remove-buy-action alert"
-                    data-index="${index}"
-                  >
-                    Remover
-                  </button>
-                </p>
-              </section>
+            <section class="buy-section flex space-between wrap" id="list-id-index-">
+              <p>
+                <label> Produto:* </label>
+                <br>
+                ${productInput}
+                <div id="product-component"> </div>
+              </p>
+              <p>
+                <label> Quantidade:* </label>
+                <br>
+                <input type="number" name="buys[]quantity" step="0.01" required>
+              </p>
+              <p>
+                <label> Valor:* </label>
+                <br>
+                <input type="number" name="buys[]value" step="0.01" required>$
+              </p>
+              <p>
+                <label>
+                  <input type="checkbox" name="buys[]is_move_to_stock" checked value="true">
+                  Mover para Estoque?*
+                </label>
+              </p>
+              <p>
+                <button
+                  href="#"
+                  class="js-remove-buy-action alert"
+                  data-index="${index}"
+                >
+                  Remover
+                </button>
+              </p>
+            </section>
           `
         }).join('')}
-          ${props.buyComponentItems.length ? `
+          ${props.items.length ? `
             <div class="text-center">
               <button class="success" id="js-finish-buy-button">Finalizar Compra</button>
             </div>` : ''
           }
         </form>
       `
-    }
+    },
+    allowHTML: true
   });
+
+  const productComponent = new Reef('#product-component', {
+    data: {
+      products: []
+    },
+    template: function(props) {
+      return `
+        <datalist id="productSuggestion">
+          ${props.products.map((product) => {
+            return `
+              <option
+                reef-value="${product?.id} - ${product?.name} : ${product?.unit}"
+              >
+                ${product?.escaped_value}
+              </option>
+            `
+          }).join('')}
+        </datalist>
+      `
+    },
+    attachTo: buyItemComponent
+  });
+
+  buyItemComponent.render();
 
   window.addEventListener('update-product-data', (e) => {
-    window.masterStore.data.products = e.detail.products;
+    productComponent.data.products = e.detail.products;
   });
 
-  window.buyItemComponent.render();
-}
+  window.addEventListener('update-buy-component-items-data', (e) => {
+    const { items } = e.detail;
+    buyItemComponent.data.items = items;
+  });
 
-async function updateProductList() {
-  const res = await window.fetch(`${BASE_API}/get_products`);
-  const products = await res.json();
-  window.masterStore.data.products = products;
+  window.addEventListener('remove-buy-component-items-data', (e) => {
+    const { index } = e.detail;
+    buyItemComponent.data.items.splice(index, 1);
+  });
+
+  window.addEventListener('append-buy-component-items-data', (e) => {
+    const { item } = e.detail;
+    buyItemComponent.data.items.push(item);
+  });
 }
 
 document.addEventListener('poorlinks:loaded:new-buy', async () => {
+  addBuyItem();
+
   const selectedProducts = history.state;
 
-  window.masterStore = new Reef.Store({
-    data: {
-      products: [],
-      lists: [],
-      buyComponentItems: []
-    }
-  });
-
   if (Object.keys(selectedProducts).length) {
-    window.masterStore.data.buyComponentItems = selectedProducts;
+    const ce = new CustomEvent('update-buy-component-items-data',
+      { detail: { items: selectedProducts } });
+    window.dispatchEvent(ce);
   }
 
-  await addBuyItem();
-
   $('#js-add-new-item-button').addEventListener('click', () => {
-    window.masterStore.data.buyComponentItems.push({ product: null, quantity: 0, value: 0 });
+    const index = Date.now();
+    const item = {
+      product: null,
+      quantity: 0,
+      value: 0,
+      index
+    };
+
+    const ce = new CustomEvent('append-buy-component-items-data',
+      { detail: { item } });
+    window.dispatchEvent(ce);
   });
 
   $('#js-buy-item').addEventListener('click', (e) => {
     if (e.target.classList.contains('js-remove-buy-action')) {
       e.preventDefault();
       const index = e.target.dataset.index;
-      window.masterStore.data.buyComponentItems.splice(index, 1);
+      const ce = new CustomEvent('remove-buy-component-items-data',
+        { detail: { index } });
+      window.dispatchEvent(ce);
     }
   });
 
@@ -133,13 +171,15 @@ document.addEventListener('poorlinks:loaded:new-buy', async () => {
 
       try {
         await window.fetch(`${BASE_API}/create_buy`, { method: 'POST', body: formData });
-        window.masterStore.data.buyComponentItems = [];
+        const ce = new CustomEvent('update-buy-component-items-data',
+          { detail: { items: [] } });
+        window.dispatchEvent(ce);
         $('#js-success-buy-message').classList.add('show');
         $('#js-success-buy-message').classList.remove('hide');
         setTimeout(() => {
           $('#js-success-buy-message').classList.remove('show');
           $('#js-success-buy-message').classList.add('hide');
-        }, 1000)
+        }, 500)
       } catch (err) {
         console.log(err);
       }
@@ -155,7 +195,7 @@ document.addEventListener('poorlinks:loaded:new-buy', async () => {
 
         setTimeout(async () => {
           if (e.target.value) {
-            const res = await window.fetch(`${BASE_API}/get_products_by_name/${e.target.value}`);
+            const res = await window.fetch(`${BASE_API}/get_products_by_name?query_name=${e.target.value}`);
             const products = await res.json();
     
             const ce = new CustomEvent('update-product-data', { detail: { products } });

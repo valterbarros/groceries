@@ -158,10 +158,9 @@ button.text-alert {
   position: relative;
 }
 
-.current-clicked {
-  border-bottom: 0.2em solid currentColor;
-  margin-left: 0.8em;
-  padding-left: 0 !important;
+.menu :any-link.current-clicked {
+  background: rgb(255 255 255 / 60%);
+  color: black;
 }
 
 .text-center {
@@ -192,6 +191,10 @@ button.text-alert {
 .menu :any-link {
   color: white;
   text-decoration: none;
+  padding: 0.6em;
+  background: rgb(255 255 255 / 27%);
+  border-radius: 0.9em;
+  margin-left: 0.8em;
 }
 
 .home-item, .new-product, .new-buy {
