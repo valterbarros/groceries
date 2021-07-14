@@ -379,7 +379,12 @@ document.addEventListener('poorlinks:loaded:index', async () => {
         }
 
         if (!forcedScrollTop && !isNavVisible && e.target.scrollTop > listElementScrollTop) {
-          e.target.scrollIntoView();
+          if (document.querySelector('.js-move-itens-list').clientHeight) {
+            document.querySelector('.js-products-page').scrollIntoView();
+          } else {
+            e.target.scrollIntoView();
+          }
+
           forcedScrollTop = true;
         }
 
