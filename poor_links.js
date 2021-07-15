@@ -30,7 +30,6 @@ async function render(url, shouldPushState = true, data = {}) {
       if (element.tagName.toLowerCase() === 'script') {
         const script = document.createElement('script');
         script.textContent = element.textContent;
-        script.defer = true;
         copyElementAttributes(script, element);
         oldHead.appendChild(script);
         const p = new Promise((resolve, rejected) => {
