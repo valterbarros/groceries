@@ -1,6 +1,6 @@
 {
   "name": "grosseries",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "An app to control your grosseries buy",
   "scripts": {
     "build": "node build.js production && parcel build index.html new-buy.html sw.js && node next-build.js"
