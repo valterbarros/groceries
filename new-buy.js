@@ -133,7 +133,6 @@ function addBuyItem() {
   $('#js-buy-item').addEventListener('remove-buy-component-items-data', (e) => {
     const { index } = e.detail;
     buyItemComponent.data.items.splice(index, 1);
-    console.log(buyItemComponent.data.items);
   });
 
   $('#js-buy-item').addEventListener('append-buy-component-items-data', (e) => {

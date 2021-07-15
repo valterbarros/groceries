@@ -1,5 +1,5 @@
 const productionUrl = 'groceries.valterbarros.com';
-var cacheName = 'shell-content4';
+var cacheName = 'shell-content5';
 var filesToCache = [
   'index.html',
   'index.js',
