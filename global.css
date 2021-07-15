@@ -159,8 +159,9 @@ button.text-alert {
 }
 
 .menu :any-link.current-clicked {
-  background: rgb(255 255 255 / 60%);
-  color: black;
+  background: none;
+  border: 0.2em solid rgb(255 255 255 / 27%);
+  padding: 0.4em;
 }
 
 .text-center {
@@ -194,6 +195,12 @@ button.text-alert {
   background: rgb(255 255 255 / 27%);
   border-radius: 0.9em;
   margin-left: 0.8em;
+}
+
+.menu :any-link:hover {
+  background: none;
+  border: 0.2em solid rgb(255 255 255 / 27%);
+  padding: 0.4em;
 }
 
 .home-item, .new-product, .new-buy {
