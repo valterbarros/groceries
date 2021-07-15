@@ -267,7 +267,7 @@ async function createProductList() {
   const lists = await listsResponse.json();
   productsComponent.data.lists = lists;
 
-  window.addEventListener('update-list-data', (e) => {
+  $('.js-products').addEventListener('update-list-data', (e) => {
     productsComponent.data.lists = e.detail.lists;
   });
 }
@@ -276,7 +276,7 @@ async function updateProductsComponent() {
   const listsResponse = await window.fetch(`${BASE_API}/get_lists`);
   const lists = await listsResponse.json();
   const updateEvent = new CustomEvent('update-list-data', { detail: { lists } });
-  window.dispatchEvent(updateEvent);
+  $('.js-products').dispatchEvent(updateEvent);
 }
 
 document.addEventListener('poorlinks:loaded:index', async () => {
@@ -680,7 +680,7 @@ document.addEventListener('poorlinks:loaded:index', () => {
       const listsWithProducts = await res.json();
 
       const ce = new CustomEvent('update-list-data', { detail: { lists: listsWithProducts } });
-      window.dispatchEvent(ce);
+      $('.js-products').dispatchEvent(ce);
     });
   });
 });

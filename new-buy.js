@@ -121,21 +121,22 @@ function addBuyItem() {
 
   buyItemComponent.render();
 
-  window.addEventListener('update-product-data', (e) => {
+  $('#js-buy-item').addEventListener('update-product-data', (e) => {
     productComponent.data.products = e.detail.products;
   });
 
-  window.addEventListener('update-buy-component-items-data', (e) => {
+  $('#js-buy-item').addEventListener('update-buy-component-items-data', (e) => {
     const { items } = e.detail;
     buyItemComponent.data.items = items;
   });
 
-  window.addEventListener('remove-buy-component-items-data', (e) => {
+  $('#js-buy-item').addEventListener('remove-buy-component-items-data', (e) => {
     const { index } = e.detail;
     buyItemComponent.data.items.splice(index, 1);
+    console.log(buyItemComponent.data.items);
   });
 
-  window.addEventListener('append-buy-component-items-data', (e) => {
+  $('#js-buy-item').addEventListener('append-buy-component-items-data', (e) => {
     const { item } = e.detail;
     buyItemComponent.data.items.push(item);
   });
@@ -149,7 +150,7 @@ document.addEventListener('poorlinks:loaded:new-buy', async () => {
   if (Object.keys(selectedProducts).length) {
     const ce = new CustomEvent('update-buy-component-items-data',
       { detail: { items: selectedProducts } });
-    window.dispatchEvent(ce);
+    $('#js-buy-item').dispatchEvent(ce);
   }
 
   $('#js-add-new-item-button').addEventListener('click', () => {
@@ -163,7 +164,7 @@ document.addEventListener('poorlinks:loaded:new-buy', async () => {
 
     const ce = new CustomEvent('append-buy-component-items-data',
       { detail: { item } });
-    window.dispatchEvent(ce);
+    $('#js-buy-item').dispatchEvent(ce);
   });
 
   $('#js-buy-item').addEventListener('click', (e) => {
@@ -172,7 +173,7 @@ document.addEventListener('poorlinks:loaded:new-buy', async () => {
       const index = e.target.dataset.index;
       const ce = new CustomEvent('remove-buy-component-items-data',
         { detail: { index } });
-      window.dispatchEvent(ce);
+      $('#js-buy-item').dispatchEvent(ce);
     }
   });
 
@@ -186,7 +187,7 @@ document.addEventListener('poorlinks:loaded:new-buy', async () => {
         await window.fetch(`${BASE_API}/create_buy`, { method: 'POST', body: formData });
         const ce = new CustomEvent('update-buy-component-items-data',
           { detail: { items: [] } });
-        window.dispatchEvent(ce);
+        $('#js-buy-item').dispatchEvent(ce);
         $('#js-success-buy-message').classList.add('show');
         $('#js-success-buy-message').classList.remove('hide');
         setTimeout(() => {
@@ -212,10 +213,10 @@ document.addEventListener('poorlinks:loaded:new-buy', async () => {
             const products = await res.json();
     
             const ce = new CustomEvent('update-product-data', { detail: { products } });
-            window.dispatchEvent(ce);
+            $('#js-buy-item').dispatchEvent(ce);
           } else {
             const ce = new CustomEvent('update-product-data', { detail: { products: [] } });
-            window.dispatchEvent(ce);
+            $('#js-buy-item').dispatchEvent(ce);
           }
 
           debounceSearch = false;
