@@ -30,8 +30,6 @@ jobs:
         echo "REL_VERSION=${VERSION}" >> $GITHUB_ENV
     - name: Pushing changes to remote repo
       run: |
-        git add -A
-        git commit --message "bump to ${REL_VERSION}"
         remote_repo="https://${GITHUB_ACTOR}:${{secrets.GITHUB_TOKEN}}@github.com/${GITHUB_REPOSITORY}.git"
         git push "${remote_repo}" HEAD:master --tags
     - name: Run build task
