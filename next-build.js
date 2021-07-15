@@ -1,6 +1,7 @@
 const fs = require('fs')
 const path = require('path')
 const folderPath = path.join(__dirname, '/dist');
+const pjson = require('./package.json');
 
 const filesToCache = fs.readdirSync(folderPath).map(fileName => {
   return `"${fileName}"`
@@ -22,7 +23,7 @@ fs.readFile('./dist/sw.js', 'utf8', async function(err, data) {
     }
 
     return filesToCache[count += 1];
-  });
+  }).replace(/%{version}/g, pjson.version);
 
   fs.writeFile('./dist/sw.js', result, 'utf8', function(err) {
     if (err) return console.log(err);

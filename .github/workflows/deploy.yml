@@ -20,6 +20,20 @@ jobs:
         echo 'module.exports = credendials = { production: { api: "${{ secrets.PRODUCTION_API_LINK }}" } }' >> env.js
     - name: Install npm dependencies
       run: npm install
+    - name: Configuring git
+      run: |
+        git config --global user.email "action@github.com"
+        git config --global user.name "GitHub Action"
+    - name: bump npm version
+      run: |
+        VERSION=$(npm version minor)
+        echo "REL_VERSION=${VERSION}" >> $GITHUB_ENV
+    - name: Pushing changes to remote repo
+      run: |
+        git add -A
+        git commit --message "bump to ${REL_VERSION}"
+        remote_repo="https://${GITHUB_ACTOR}:${{secrets.GITHUB_TOKEN}}@github.com/${GITHUB_REPOSITORY}.git"
+        git push "${remote_repo}" HEAD:master --tags
     - name: Run build task
       run: npm run build
     # - name: Prepare SSH to work with the remote server
