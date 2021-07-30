@@ -30,6 +30,7 @@ self.addEventListener('fetch', async function(event) {
       if (response && location.origin.includes(productionUrl)) {
         return response;
       }
+
       return fetch(event.request);
     })
   );

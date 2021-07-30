@@ -17,6 +17,16 @@ const $ = function(query) {
   return document.querySelector(query);
 }
 
+async function getFilteredData(sideForm) {
+  const formData = new FormData(sideForm);
+
+  const res = await window.fetch(`${BASE_API}/search_products`, { body: formData, method: 'POST' });
+  const listsWithProducts = await res.json();
+
+  const ce = new CustomEvent('update-list-data', { detail: { lists: listsWithProducts } });
+  $('.js-products').dispatchEvent(ce);
+}
+
 function createSideMenu() {
   const sideMenu = new Reef('#js-side-menu', {
     template: function(props) {
@@ -371,7 +381,7 @@ document.addEventListener('poorlinks:loaded:index', async () => {
           (!isNavVisible && e.target.scrollTop < listElementScrollTop)) {
           forcedScrollTop = false;
           window.scroll({
-            top: (window.scrollY - (e.target.scrollTop - listElementScrollTop) * -1),
+            top: window.scrollY + (e.target.scrollTop - listElementScrollTop),
             behavior: 'auto'
           });
 
@@ -674,13 +684,7 @@ document.addEventListener('poorlinks:loaded:index', () => {
     $('#js-side-menu-form').addEventListener('submit', async (e) => {
       e.preventDefault();
 
-      const formData = new FormData(e.target);
-
-      const res = await window.fetch(`${BASE_API}/search_products`, { body: formData, method: 'POST' });
-      const listsWithProducts = await res.json();
-
-      const ce = new CustomEvent('update-list-data', { detail: { lists: listsWithProducts } });
-      $('.js-products').dispatchEvent(ce);
+      await getFilteredData(e.target);
     });
   });
 });
