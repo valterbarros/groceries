@@ -37,6 +37,9 @@
 
 li:not(:nth-child(2)) .item-product {
   margin-top: 0.6em;
+}
+
+li .item-product {
   margin-bottom: 0.6em;
 }
 
@@ -62,7 +65,7 @@ li:not(:nth-child(2)) .item-product {
   right: 0;
 }
 
-.move-to-top {
+.open-side-menu {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -72,6 +75,19 @@ li:not(:nth-child(2)) .item-product {
   border-radius: 50%;
   position: fixed;
   bottom: 2%;
+  right: 2%;
+}
+
+.remove-filter {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 3.5em;
+  height: 3.5em;
+  background: yellowgreen;
+  border-radius: 50%;
+  position: fixed;
+  bottom: calc(3.9em + 2%);
   right: 2%;
 }
 
@@ -101,16 +117,18 @@ li:not(:nth-child(2)) .item-product {
   }
 
   .list-element {
-    min-width: calc(100vw - 6em);
+    min-width: calc(100vw - 3.5em);
     scroll-snap-align: center;
     scroll-snap-stop: always;
     flex: 1;
     overflow-y: auto;
-    height: 98vh;
+    height: 100%;
+    max-height: 100vh;
   }
 
   .list-element.add-list-list-element {
-    height: 100%;
+    height: calc(100vh - 5.5em);
+    background: transparent;
   }
 
   ul.list-element:last-child {
@@ -232,6 +250,7 @@ li:not(:nth-child(2)) .item-product {
 .add-list {
   background: #eaeaea;
   padding: 0.6em;
+  border-radius: 0.3em;
 }
 
 .side-menu {
