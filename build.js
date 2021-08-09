@@ -1,6 +1,8 @@
 const fs = require('fs');
 const credendials = require('./env.js');
 
+// usage: node build.js development 
+
 fs.open('./env_master.js', 'w', function (err, file) {
   if (err) throw err;
   fs.closeSync(file);

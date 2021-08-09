@@ -17,10 +17,11 @@ const $ = function(query) {
   return document.querySelector(query);
 }
 
-async function getFilteredData(sideForm) {
-  const formData = new FormData(sideForm);
-
-  const res = await window.fetch(`${BASE_API}/search_products`, { body: formData, method: 'POST' });
+async function getFilteredData(formData) {
+  const res = await window.fetch(`${BASE_API}/search_products`, {
+    body: formData,
+    method: 'POST'
+  });
   const listsWithProducts = await res.json();
 
   const ce = new CustomEvent('update-list-data', { detail: { lists: listsWithProducts } });
@@ -29,14 +30,22 @@ async function getFilteredData(sideForm) {
 
 function createSideMenu() {
   const sideMenu = new Reef('#js-side-menu', {
+    data: {
+      items: []
+    },
     template: function(props) {
       return `
-        <form action="" id="js-side-menu-form">
+        <form action="" id="js-side-menu-form" autocomplete="on">
           <section>
             <p>
               <label for="js-filter-product-name"> Nome do produto: </label>
               <br>
-              <input id="js-filter-product-name" name="search" type="search">
+              <input id="js-filter-product-name" list="productSuggestion" name="search" type="search">
+              <datalist id="productSuggestion">
+                ${props.items.map((item) => {
+                  return `<option>${item.name}</option>`
+                }).join('')}
+              </datalist>
             </p>
 
             <fieldset class="config-fieldset">
@@ -79,6 +88,11 @@ function createSideMenu() {
         </form>
       `;
     }
+  });
+
+  $('#js-side-menu').addEventListener('update-suggestion-items', (e) => {
+    const { items } = e.detail;
+    sideMenu.data.items = items;
   });
 
   sideMenu.render();
@@ -273,16 +287,27 @@ async function createProductList() {
   
   productsComponent.render();
 
-  const listsResponse = await window.fetch(`${BASE_API}/get_lists`);
-  const lists = await listsResponse.json();
-  productsComponent.data.lists = lists;
-
   $('.js-products').addEventListener('update-list-data', (e) => {
     productsComponent.data.lists = e.detail.lists;
   });
+
+  await updateProductsComponent();
 }
 
 async function updateProductsComponent() {
+  if (!!sessionStorage.getItem('sideMenuFilter')) {
+    const formData = new FormData();
+    const filter = JSON.parse(sessionStorage.getItem('sideMenuFilter'));
+
+    for (let item in filter) {
+      formData.append(item, filter[item])
+    }
+    
+    await getFilteredData(formData);
+
+    return;
+  }
+
   const listsResponse = await window.fetch(`${BASE_API}/get_lists`);
   const lists = await listsResponse.json();
   const updateEvent = new CustomEvent('update-list-data', { detail: { lists } });
@@ -312,35 +337,24 @@ document.addEventListener('poorlinks:loaded:index', async () => {
     const formData = new FormData(e.target);
 
     try {
-      let transitionHandle;
+      let transitionHandle = (e) => {
+        $('#js-modal-product').classList.add('hide');
+        $('body').classList.remove('overflow-hidden');
+        $('#js-success-product-message').classList.remove('show');
+        e.target.removeEventListener('transitionend', transitionHandle);
+      }
 
       switch(e.submitter.id) {
         case 'js-submit-new-product':
           await window.fetch(`${BASE_API}/create_product`, { body: formData, method: 'POST' });
           await updateProductsComponent();
           $('#js-success-product-message').classList.add('show');
-
-          transitionHandle = (e) => {
-            $('#js-modal-product').classList.add('hide');
-            $('body').classList.remove('overflow-hidden');
-            $('#js-success-product-message').classList.remove('show');
-            e.target.removeEventListener('transitionend', transitionHandle);
-          }
-
           $('#js-success-product-message').addEventListener('transitionend', transitionHandle);
           break;
         case 'js-submit-update-product':
           await window.fetch(`${BASE_API}/update_product`, { body: formData, method: 'PUT' });
           await updateProductsComponent();
           $('#js-success-product-message').classList.add('show');
-
-          transitionHandle = (e) => {
-            $('#js-modal-product').classList.add('hide');
-            $('body').classList.remove('overflow-hidden');
-            $('#js-success-product-message').classList.remove('show');
-            e.target.removeEventListener('transitionend', transitionHandle);
-          }
-
           $('#js-success-product-message').addEventListener('transitionend', transitionHandle);
           break;
       }
@@ -427,6 +441,29 @@ document.addEventListener('poorlinks:loaded:index', async () => {
     }, options);
 
     menuTopObserver.observe(document.querySelector('.js-menu'));
+
+    // ---
+
+    var options = {
+      root: null,
+      rootMargin: '0px',
+      threshold: [0.00, 1.00]
+    }
+
+    var listElementObserver = new IntersectionObserver((data) => {
+      console.log(data);
+      if (!data[0].isIntersecting && data[0].intersectionRatio === 0) {
+        isNavVisible = false;
+      }
+  
+      if (data[0].isIntersecting && data[0].intersectionRatio === 1) {
+        isNavVisible = true;
+      }
+    }, options);
+
+    listElementObserver.observe(document.querySelectorAll('.list-element')[2]);
+
+    // window.onscroll = function(e) { console.log(e)}
   }
 });
 
@@ -678,13 +715,61 @@ document.addEventListener('poorlinks:loaded:index', () => {
       e.preventDefault();
       e.target.form.reset();
 
+      sessionStorage.removeItem('sideMenuFilter');
+
       await updateProductsComponent();
     });
 
     $('#js-side-menu-form').addEventListener('submit', async (e) => {
       e.preventDefault();
 
-      await getFilteredData(e.target);
+      const formData = new FormData(e.target);
+      let saveFilter = {};
+
+      formData.forEach((v, k) => saveFilter[k] = v);
+    
+      sessionStorage.setItem('sideMenuFilter', JSON.stringify(saveFilter));
+
+      await getFilteredData(formData);
+      $('.js-remove-filter').classList.remove('hide');
     });
+  });
+
+  $('.js-remove-filter').addEventListener('click', async (e) => {
+    $('#js-side-menu-form').reset();
+
+    sessionStorage.removeItem('sideMenuFilter');
+
+    await updateProductsComponent();
+    $('.js-remove-filter').classList.add('hide');
+  });
+
+  if (!sessionStorage.getItem('sideMenuFilter')) {
+    $('.js-remove-filter').classList.add('hide');
+  }
+
+  let debounceSearch;
+
+  $('#js-side-menu').addEventListener('input', async (e) => {
+    if (e.target.id === 'js-filter-product-name') {
+      if (!debounceSearch) {
+        debounceSearch = true;
+
+        setTimeout(async () => {
+          if (e.target.value) {
+            const res = await window.fetch(`${BASE_API}/get_products_by_name?query_name=${e.target.value}`);
+            const products = await res.json();
+    
+            const ce = new CustomEvent('update-suggestion-items', { detail: { items: products } });
+            $('#js-side-menu').dispatchEvent(ce);
+          } else {
+            const ce = new CustomEvent('update-suggestion-items', { detail: { items: [] } });
+            $('#js-side-menu').dispatchEvent(ce);
+          }
+
+          debounceSearch = false;
+        }, 500);
+      }
+    }
   });
 });
