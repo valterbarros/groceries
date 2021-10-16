@@ -43,7 +43,13 @@ function createSideMenu() {
               <input id="js-filter-product-name" list="productSuggestion" name="search" type="search">
               <datalist id="productSuggestion">
                 ${props.items.map((item) => {
-                  return `<option value="${item?.name}">${item?.escaped_value}</option>`
+                  return `
+                    <option
+                      reef-value="${item?.id} - ${item?.name}"
+                    >
+                      ${item?.escaped_value}
+                    </option>
+                  `
                 }).join('')}
               </datalist>
             </p>
