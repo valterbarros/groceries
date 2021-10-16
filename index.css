@@ -123,7 +123,13 @@ li .item-product {
     flex: 1;
     overflow-y: auto;
     height: 100%;
-    max-height: 100vh;
+    max-height: calc(100vh - 1.4em);
+    margin-bottom: 0.7em !important;
+    margin-top: 0.7em !important;
+  }
+
+  .product-page {
+    padding: 0.1em;
   }
 
   .list-element.add-list-list-element {
@@ -159,6 +165,10 @@ li .item-product {
 }
 
 @media screen and (min-width: 900px) {
+  .products {
+    padding: 0 0.7em 0 0.7em;
+  }
+
   .products-list-container {
     overflow: auto;
     display: flex;

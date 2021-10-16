@@ -43,7 +43,7 @@ function createSideMenu() {
               <input id="js-filter-product-name" list="productSuggestion" name="search" type="search">
               <datalist id="productSuggestion">
                 ${props.items.map((item) => {
-                  return `<option>${item.name}</option>`
+                  return `<option value="${item?.name}">${item?.escaped_value}</option>`
                 }).join('')}
               </datalist>
             </p>
@@ -732,6 +732,14 @@ document.addEventListener('poorlinks:loaded:index', () => {
 
       await getFilteredData(formData);
       $('.js-remove-filter').classList.remove('hide');
+    });
+
+    $('#js-filter-product-initial-date').addEventListener('change', (e) => {
+      if (!$('#js-filter-product-final-date').value) {
+        const initialDate = new Date(e.target.value);
+        initialDate.setDate(initialDate.getDate() + 1);
+        $('#js-filter-product-final-date').value = initialDate.toISOString().substr(0, 10);
+      }
     });
   });
 
