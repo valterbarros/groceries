@@ -45,7 +45,7 @@ function createSideMenu() {
                 ${props.items.map((item) => {
                   return `
                     <option
-                      reef-value="${item?.id} - ${item?.name}"
+                      reef-value="${item?.name}"
                     >
                       ${item?.escaped_value}
                     </option>
