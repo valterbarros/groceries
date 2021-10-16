@@ -441,29 +441,6 @@ document.addEventListener('poorlinks:loaded:index', async () => {
     }, options);
 
     menuTopObserver.observe(document.querySelector('.js-menu'));
-
-    // ---
-
-    var options = {
-      root: null,
-      rootMargin: '0px',
-      threshold: [0.00, 1.00]
-    }
-
-    var listElementObserver = new IntersectionObserver((data) => {
-      console.log(data);
-      if (!data[0].isIntersecting && data[0].intersectionRatio === 0) {
-        isNavVisible = false;
-      }
-  
-      if (data[0].isIntersecting && data[0].intersectionRatio === 1) {
-        isNavVisible = true;
-      }
-    }, options);
-
-    listElementObserver.observe(document.querySelectorAll('.list-element')[2]);
-
-    // window.onscroll = function(e) { console.log(e)}
   }
 });
 
