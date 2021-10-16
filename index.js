@@ -693,6 +693,7 @@ document.addEventListener('poorlinks:loaded:index', () => {
       e.target.form.reset();
 
       sessionStorage.removeItem('sideMenuFilter');
+      $('.js-remove-filter').classList.add('hide');
 
       await updateProductsComponent();
     });
