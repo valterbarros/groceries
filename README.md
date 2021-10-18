@@ -5,5 +5,5 @@ To run
 
 ```
 npm install
-npx parcel index.html
+node build.js development && npx parcel serve index.html new-buy.html sw.js
 ```
