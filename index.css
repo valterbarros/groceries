@@ -13,6 +13,10 @@
   margin-bottom: 0.7em;
 }
 
+body {
+  background: black;
+}
+
 .products ul:not(.config-list) {
   padding: 0;
   margin: 0;

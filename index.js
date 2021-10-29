@@ -29,6 +29,7 @@ async function getFilteredData(formData) {
 }
 
 function createSideMenu() {
+  console.log('just test')
   const sideMenu = new Reef('#js-side-menu', {
     data: {
       items: []
