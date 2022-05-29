@@ -34,26 +34,26 @@
   
             <section class="flex wrap space-between modal-product-fields">
               <p>
-                <label for=""> Nome:* </label>
+                <label for=""> Nome: <abbr class="required">*</abbr> </label>
                 <br>
                 <input type="text" name="name" id="js-product-name-field" required>
               </p>
   
               <p class="relative">
-                <label for="js-product-quantity-field"> Quantidade:* </label>
+                <label for="js-product-quantity-field"> Quantidade:<abbr class="required">*</abbr> </label>
                 <br>
                 <input type="number" name="quantity" id="js-product-quantity-field" required step="0.01">
                 <button id="js-product-decrease-quantity" class="alert product-decrease-quantity"> - </button>
               </p>
   
               <p>
-                <label for=""> Quantidade Alerta:* </label>
+                <label for=""> Quantidade Alerta:<abbr class="required">*</abbr> </label>
                 <br>
                 <input type="number" name="quantity_alert" id="js-product-quantity-alert-field" step="0.01" required>
               </p>
     
               <p>
-                <label for=""> Unidade:* </label>
+                <label for=""> Unidade:<abbr class="required">*</abbr> </label>
                 <br>
                 <select name="unit" id="js-product-unit-field" required>
                   <option value=""></option>
@@ -66,7 +66,7 @@
               </p>
     
               <p>
-                <label for=""> Prioridade:* </label>
+                <label for=""> Prioridade:<abbr class="required">*</abbr> </label>
                 <br>
                 <select name="priority" id="js-product-priority-field" required>
                   <option value=""></option>
@@ -77,7 +77,7 @@
               </p>
     
               <p id="js_list_selection_container">
-                <label for=""> Lista:* </label>
+                <label for=""> Lista:<abbr class="required">*</abbr> </label>
                 <br>
                 <select name="list_id" id="js_list_selection" required>
                   <option value=""></option>
@@ -90,11 +90,11 @@
                 <input type="number" name="value" id="js-product-value-field" step="0.01"> $
               </p> -->
     
-              <p>
+              <!-- <p>
                 <label for=""> Foto: </label>
                 <br>
                 <input type="file" name="file">
-              </p>
+              </p> -->
     
               <fieldset class="config-fieldset">
                 <legend>Configurações</legend>

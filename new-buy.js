@@ -37,7 +37,7 @@ function addBuyItem() {
               required
               data-index="${index}"
               reef-value="${item?.product?.id} - ${item?.product?.name} : ${item?.product?.unit}"
-            >`;
+            />`;
           } else {
             productInput = `<input
               type="search"
@@ -47,34 +47,48 @@ function addBuyItem() {
               required
               data-index="${index}"
               value=""
-            >`;
+            />`;
           }
+          
+          const quantityStepRegistry = {
+            unidade: 'Unidade',
+            gramas: 'Gramas',
+            kilogramas: 'Kilogramas',
+            mililitro: 'Mililitro',
+            litro: 'Litro'
+          };
+
+          const keys = Object.keys(quantityStepRegistry);
 
           return `
             <section class="buy-section flex space-between wrap" id="list-id-index-${item.index}">
               <p>
-                <label> Produto:* </label>
+                <label> Produto:<abbr class="required">*</abbr> </label>
                 <br>
                 ${productInput}
                 <div id="product-component"> </div>
               </p>
               <p>
-                <label> Quantidade:* </label>
+                <label> Unidade:<abbr class="required">*</abbr> </label>
+                <br>
+                <select name="buys[]unit">
+                  ${keys.map(item => {
+                    return `<option value="${quantityStepRegistry[item]}">${quantityStepRegistry[item]}</option>`
+                  }).join('')}
+                </select>
+              </p>
+              <p>
+                <label> Quantidade:<abbr class="required">*</abbr> </label>
                 <br>
                 <input type="number" name="buys[]quantity" step="0.01" required>
               </p>
-              <p>
-                <label> Valor:* </label>
-                <br>
-                <input type="number" name="buys[]value" step="0.01" required>$
-              </p>
-              <p>
+              <p class="new-product-item">
                 <label>
                   <input type="checkbox" name="buys[]is_move_to_stock" checked value="true">
-                  Mover para Estoque?*
+                  Mover para Estoque?<abbr class="required">*</abbr>
                 </label>
               </p>
-              <p>
+              <p class="new-product-item">
                 <button
                   href="#"
                   class="js-remove-buy-action alert"

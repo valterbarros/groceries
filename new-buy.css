@@ -28,3 +28,8 @@
   max-width: 960px;
   margin: auto;
 }
+
+.new-product-item {
+  display: flex;
+  align-items: center;
+}

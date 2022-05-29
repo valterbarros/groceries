@@ -120,7 +120,6 @@ function createBuyHistory() {
           <table width="100%">
             <tr class="text-center">
               <th>Quantidade</th>
-              <th>Valor</th>
               <th> Data </th>
             </tr>
             ${props.buys.map((buy) => {
@@ -129,7 +128,6 @@ function createBuyHistory() {
               return `
                 <tr class="text-center">
                   <td>${buy.quantity || '-'}</td>
-                  <td>R$ ${buy.value || '-'}</td>
                   <td>${date || '-'}</td>
                 </tr>
                 `

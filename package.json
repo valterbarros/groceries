@@ -3,6 +3,7 @@
   "version": "1.10.0",
   "description": "An app to control your grosseries buy",
   "scripts": {
+    "dev": "node build.js development && npx parcel serve index.html new-buy.html sw.js",
     "build": "node build.js production && parcel build index.html new-buy.html sw.js && node next-build.js"
   },
   "keywords": [
