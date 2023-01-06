@@ -28,6 +28,11 @@ async function getFilteredData(formData) {
   $('.js-products').dispatchEvent(ce);
 }
 
+const formatDateForBr = (date) => {
+  const locales = { dateStyle: 'short', timeStyle: 'medium'};
+  return new Intl.DateTimeFormat('pt-BR', locales).format(date);
+}
+
 function createSideMenu() {
   const sideMenu = new Reef('#js-side-menu', {
     data: {
@@ -123,12 +128,13 @@ function createBuyHistory() {
               <th> Data </th>
             </tr>
             ${props.buys.map((buy) => {
-              const date = new Date(buy.created_at).toLocaleString();
+              const date = new Date(buy.buy_at);
+              const formatedDate = formatDateForBr(date)
 
               return `
                 <tr class="text-center">
                   <td>${buy.quantity || '-'}</td>
-                  <td>${date || '-'}</td>
+                  <td>${formatedDate || '-'}</td>
                 </tr>
                 `
             }).join('')}
@@ -222,7 +228,6 @@ async function createProductList() {
                           ${product.is_it_over ? '<span class="label-out-of-stock">Fora de Estoque</span>' : ''}
                           </div>
                           <span class="${product.is_it_over ? 'hide' : ''}">${product.quantity} ${product.unit}</span>
-                          <span>R$ ${product.last_buy_value}</span>
                           <p>
                             <button data-product-id="${product.id}" class="js-delete-product text-alert" href="#">Apagar</button>
                             <button data-product-id="${product.id}" href="#" class="js-edit-product">Editar</button>

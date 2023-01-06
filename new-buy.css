@@ -12,6 +12,7 @@
   .body-element .buy-section input[type="text"],
   .body-element .buy-section input[type="number"],
   .body-element .buy-section input[type="search"],
+  .body-element .buy-section input[type="datetime-local"],
   .body-element .buy-section select {
     width: 100%;
   }
@@ -27,9 +28,21 @@
 .buy-section {
   max-width: 960px;
   margin: auto;
+  align-items: center;
+}
+
+/* Maybe a bug on reef creates a p empty and that is broken layout */
+.buy-section p:empty{
+  display: none;
 }
 
 .new-product-item {
   display: flex;
   align-items: center;
+}
+
+.buy-header {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
 }

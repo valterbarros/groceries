@@ -17,6 +17,8 @@ const $ = function(query) {
   return document.querySelector(query);
 }
 
+const formatDateForDateTimeInput = (date) => date.toISOString().replace(/(?<=T[0-9]+:[0-9]+):.+/gi, '')
+
 function addBuyItem() {
   const buyItemComponent = new Reef('#js-buy-item', {
     data: {
@@ -25,6 +27,15 @@ function addBuyItem() {
     template: function (props) {
       return `
       <form class="js-buy-section-form">
+        <div class="buy-header">
+          <div>
+            <label for="buy-date">Data:</label>
+            <input id="buy-date" type="datetime-local" name="buy_at" class="js-buy-data">
+          </div>
+        </div>
+
+        <hr/>
+
         ${props.items.map((item, index) => {
           let productInput = '';
 
@@ -64,13 +75,13 @@ function addBuyItem() {
             <section class="buy-section flex space-between wrap" id="list-id-index-${item.index}">
               <p>
                 <label> Produto:<abbr class="required">*</abbr> </label>
-                <br>
+                <br/>
                 ${productInput}
                 <div id="product-component"> </div>
               </p>
               <p>
                 <label> Unidade:<abbr class="required">*</abbr> </label>
-                <br>
+                <br/>
                 <select name="buys[]unit">
                   ${keys.map(item => {
                     return `<option value="${quantityStepRegistry[item]}">${quantityStepRegistry[item]}</option>`
@@ -79,7 +90,7 @@ function addBuyItem() {
               </p>
               <p>
                 <label> Quantidade:<abbr class="required">*</abbr> </label>
-                <br>
+                <br/>
                 <input type="number" name="buys[]quantity" step="0.01" required>
               </p>
               <p class="new-product-item">
@@ -165,6 +176,10 @@ document.addEventListener('poorlinks:loaded:new-buy', async () => {
       { detail: { items: selectedProducts } });
     $('#js-buy-item').dispatchEvent(ce);
   }
+
+  // Set current date
+  const currentDateTime = formatDateForDateTimeInput(new Date());
+  $('.js-buy-data').value = currentDateTime.replace('Z', '');
 
   $('#js-add-new-item-button').addEventListener('click', () => {
     const index = Date.now();
