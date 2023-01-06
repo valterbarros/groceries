@@ -13,8 +13,24 @@ if ('serviceWorker' in navigator) {
   });
 }
 
+/**
+ * query elements
+ * @param {string} query 
+ * @returns Element
+ */
 const $ = function(query) {
   return document.querySelector(query);
+}
+
+/**
+ * 
+ * @param {string} eventName 
+ * @param {string} queryElement 
+ * @param {{}} detail 
+ */
+const dispatchHelper = (eventName, queryElement, detail) => {
+  const ce = new CustomEvent(eventName, { detail });
+  $(queryElement).dispatchEvent(ce);
 }
 
 const formatDateForDateTimeInput = (date) => date.toISOString().replace(/(?<=T[0-9]+:[0-9]+):.+/gi, '')
@@ -48,6 +64,7 @@ function addBuyItem() {
               required
               data-index="${index}"
               reef-value="${item?.product?.id} - ${item?.product?.name} : ${item?.product?.unit}"
+              data-section-id="${item.index}"
             />`;
           } else {
             productInput = `<input
@@ -58,6 +75,7 @@ function addBuyItem() {
               required
               data-index="${index}"
               value=""
+              data-section-id="${item.index}"
             />`;
           }
           
@@ -72,17 +90,19 @@ function addBuyItem() {
           const keys = Object.keys(quantityStepRegistry);
 
           return `
+            <div id="product-component"></div>
+
             <section class="buy-section flex space-between wrap" id="list-id-index-${item.index}">
               <p>
                 <label> Produto:<abbr class="required">*</abbr> </label>
                 <br/>
                 ${productInput}
-                <div id="product-component"> </div>
               </p>
-              <p>
-                <label> Unidade:<abbr class="required">*</abbr> </label>
+              <p id="js-container-unit-select" class="container-unit-select ${item.disableUnit ? 'invisible' : ''}">
+                <label for="js-unit-select"> Unidade:<abbr class="required">*</abbr> </label>
                 <br/>
-                <select name="buys[]unit">
+                <select name="buys[]unit" id="js-unit-select">
+                  <option selected value="">-</option>
                   ${keys.map(item => {
                     return `<option value="${quantityStepRegistry[item]}">${quantityStepRegistry[item]}</option>`
                   }).join('')}
@@ -93,11 +113,9 @@ function addBuyItem() {
                 <br/>
                 <input type="number" name="buys[]quantity" step="0.01" required>
               </p>
-              <p class="new-product-item">
-                <label>
-                  <input type="checkbox" name="buys[]is_move_to_stock" checked value="true">
-                  Mover para Estoque?<abbr class="required">*</abbr>
-                </label>
+              <p class="move-to-stock-container">
+                <label for="js-move_to_stock" class="stock-label"> Mover para Estoque?<abbr class="required">*</abbr></label>
+                <input type="checkbox" name="buys[]is_move_to_stock" checked value="true" id="js-move_to_stock" class="stock-input">
               </p>
               <p class="new-product-item">
                 <button
@@ -112,7 +130,7 @@ function addBuyItem() {
           `
         }).join('')}
           ${props.items.length ? `
-            <div class="text-center">
+            <div class="text-center footer-buy padding-10">
               <button class="success" id="js-finish-buy-button">Finalizar Compra</button>
             </div>` : ''
           }
@@ -162,7 +180,16 @@ function addBuyItem() {
 
   $('#js-buy-item').addEventListener('append-buy-component-items-data', (e) => {
     const { item } = e.detail;
-    buyItemComponent.data.items.push(item);
+    buyItemComponent.data.items.unshift(item);
+  });
+
+  $('#js-buy-item').addEventListener('update-buy-component-item-data', (e) => {
+    const { index, data } = e.detail;
+    
+    const buyItem = buyItemComponent.data.items
+      .find((item) => item.index === parseInt(index));
+
+    Object.assign(buyItem, data);
   });
 }
 
@@ -224,6 +251,25 @@ document.addEventListener('poorlinks:loaded:new-buy', async () => {
         }, 500)
       } catch (err) {
         console.log(err);
+      }
+    }
+  });
+
+  $('#js-buy-item').addEventListener('change', function(e) {
+    if (e.target.classList.contains('js-product-query-search')) {
+      const { sectionId: buyItemIndex } = e.target.dataset;
+      console.log(buyItemIndex);
+
+      // input: 70 - Asa de frango : Gramas
+      // matchs "70 -"  
+      const matchIfProductFromRemote = /^[0-9]+\s-/;
+
+      if (matchIfProductFromRemote.test(e.target.value)) {
+        const data = { index: buyItemIndex, data: { disableUnit: true } }
+        dispatchHelper('update-buy-component-item-data', '#js-buy-item', data);
+      } else {
+        const ce = new CustomEvent('update-buy-component-item-data', { detail: { index: buyItemIndex, data: { disableUnit: false } } });
+        $('#js-buy-item').dispatchEvent(ce);
       }
     }
   });

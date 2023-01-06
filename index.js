@@ -29,7 +29,7 @@ async function getFilteredData(formData) {
 }
 
 const formatDateForBr = (date) => {
-  const locales = { dateStyle: 'short', timeStyle: 'medium'};
+  const locales = { dateStyle: 'short', timeStyle: 'short'};
   return new Intl.DateTimeFormat('pt-BR', locales).format(date);
 }
 

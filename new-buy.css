@@ -9,6 +9,10 @@
     margin-bottom: 0.6em !important;
   }
 
+  section.buy-section > p {
+    height: auto;
+  }
+
   .body-element .buy-section input[type="text"],
   .body-element .buy-section input[type="number"],
   .body-element .buy-section input[type="search"],
@@ -23,12 +27,36 @@
   .body-element .modal-product-fields select {
     width: 100%;
   }
+
+  p.move-to-stock-container {
+    display: flex;
+    align-items: flex-start;
+  }
+
+  p.move-to-stock-container .stock-label {
+    flex: none;
+    margin-right: 0.8em;
+  }
+
+  .stock-input {
+    flex: none;
+    gap: 0.3em;
+  }
+
+  .buy-section p.container-unit-select.invisible {
+    height: 0;
+    margin: 0;
+  }
 }
 
 .buy-section {
   max-width: 960px;
   margin: auto;
   align-items: center;
+}
+
+.buy-section > p {
+  height: 46px;
 }
 
 /* Maybe a bug on reef creates a p empty and that is broken layout */
@@ -45,4 +73,19 @@
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
+}
+
+.move-to-stock-container {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+
+.footer-buy {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  background: #d9d9d9;
 }
