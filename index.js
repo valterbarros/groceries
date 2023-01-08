@@ -628,7 +628,8 @@ document.addEventListener('poorlinks:loaded:index', () => {
           return {
             product: productMatch,
             quantity: 0,
-            value: 0
+            value: 0,
+            disableUnit: true,
           }
         }
       });

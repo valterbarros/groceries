@@ -33,7 +33,15 @@ const dispatchHelper = (eventName, queryElement, detail) => {
   $(queryElement).dispatchEvent(ce);
 }
 
-const formatDateForDateTimeInput = (date) => date.toISOString().replace(/(?<=T[0-9]+:[0-9]+):.+/gi, '')
+const formatDateForDateTimeInput = (date) => date.toISOString().replace(/(?<=T[0-9]+:[0-9]+):.+/gi, '');
+
+const quantityStepRegistry = {
+  unidade: 'Unidade',
+  gramas: 'Gramas',
+  kilogramas: 'Kilogramas',
+  mililitro: 'Mililitro',
+  litro: 'Litro'
+};
 
 function addBuyItem() {
   const buyItemComponent = new Reef('#js-buy-item', {
@@ -47,6 +55,11 @@ function addBuyItem() {
           <div>
             <label for="buy-date">Data:</label>
             <input id="buy-date" type="datetime-local" name="buy_at" class="js-buy-data">
+          </div>
+          <div>
+            <p>
+              Produtos: ${props.items.length}
+            </p>
           </div>
         </div>
 
@@ -63,7 +76,7 @@ function addBuyItem() {
               list="productSuggestion"
               required
               data-index="${index}"
-              reef-value="${item?.product?.id} - ${item?.product?.name} : ${item?.product?.unit}"
+              reef-value="${item?.product?.id} - ${item?.product?.name}"
               data-section-id="${item.index}"
             />`;
           } else {
@@ -79,13 +92,9 @@ function addBuyItem() {
             />`;
           }
           
-          const quantityStepRegistry = {
-            unidade: 'Unidade',
-            gramas: 'Gramas',
-            kilogramas: 'Kilogramas',
-            mililitro: 'Mililitro',
-            litro: 'Litro'
-          };
+          const isSameUnit = (unit, item) => {
+            return (item?.unit || item?.product?.unit) === unit;
+          }
 
           const keys = Object.keys(quantityStepRegistry);
 
@@ -98,13 +107,17 @@ function addBuyItem() {
                 <br/>
                 ${productInput}
               </p>
-              <p id="js-container-unit-select" class="container-unit-select ${item.disableUnit ? 'invisible' : ''}">
+              <p id="js-container-unit-select" class="container-unit-select">
                 <label for="js-unit-select"> Unidade:<abbr class="required">*</abbr> </label>
                 <br/>
-                <select name="buys[]unit" id="js-unit-select">
-                  <option selected value="">-</option>
-                  ${keys.map(item => {
-                    return `<option value="${quantityStepRegistry[item]}">${quantityStepRegistry[item]}</option>`
+                <select name="buys[]unit" id="js-unit-select" ${item.disableUnit ? 'disabled' : ''}>
+                  <option ${!item.disableUnit && 'reef-selected'} value="">-</option>
+                  ${keys.map(unit => {
+                    return `
+                      <option ${isSameUnit(quantityStepRegistry[unit], item) && 'reef-selected'} value="${quantityStepRegistry[unit]}">
+                        ${quantityStepRegistry[unit]}
+                      </option>
+                    `
                   }).join('')}
                 </select>
               </p>
@@ -140,6 +153,8 @@ function addBuyItem() {
     allowHTML: true
   });
 
+  const getProduct = (product) => product.deleted_at ? product?.name : `${product?.id} - ${product?.name} : ${product?.unit}`;
+
   const productComponent = new Reef('#product-component', {
     data: {
       products: []
@@ -150,7 +165,7 @@ function addBuyItem() {
           ${props.products.map((product) => {
             return `
               <option
-                reef-value="${product?.id} - ${product?.name} : ${product?.unit}"
+                reef-value="${getProduct(product)}"
               >
                 ${product?.escaped_value}
               </option>
@@ -255,21 +270,27 @@ document.addEventListener('poorlinks:loaded:new-buy', async () => {
     }
   });
 
-  $('#js-buy-item').addEventListener('change', function(e) {
+  $('#js-buy-item').addEventListener('change', function handleSearchChange(e) {
     if (e.target.classList.contains('js-product-query-search')) {
       const { sectionId: buyItemIndex } = e.target.dataset;
-      console.log(buyItemIndex);
+      const unitRegex = new RegExp(Object.values(quantityStepRegistry).join('|'), 'ig');
+      const productUnit = e.target.value.match(unitRegex)?.join('');
 
       // input: 70 - Asa de frango : Gramas
       // matchs "70 -"  
-      const matchIfProductFromRemote = /^[0-9]+\s-/;
+      const matchProductFromRemote = /^[0-9]+\s-/;
 
-      if (matchIfProductFromRemote.test(e.target.value)) {
-        const data = { index: buyItemIndex, data: { disableUnit: true } }
+      if (matchProductFromRemote.test(e.target.value)) {
+        const data = { index: buyItemIndex, data: { disableUnit: true, unit: productUnit } };
+
+        // Remove unit from input value
+        e.target.value = e.target.value.replace(/\s:.+/,'');
+        // Force close mobile keyboard
+        e.target.blur();
         dispatchHelper('update-buy-component-item-data', '#js-buy-item', data);
       } else {
-        const ce = new CustomEvent('update-buy-component-item-data', { detail: { index: buyItemIndex, data: { disableUnit: false } } });
-        $('#js-buy-item').dispatchEvent(ce);
+        const data = { index: buyItemIndex, data: { disableUnit: false, unit: '' } };
+        dispatchHelper('update-buy-component-item-data', '#js-buy-item', data);
       }
     }
   });
@@ -283,7 +304,7 @@ document.addEventListener('poorlinks:loaded:new-buy', async () => {
 
         setTimeout(async () => {
           if (e.target.value) {
-            const res = await window.fetch(`${BASE_API}/get_products_by_name?query_name=${e.target.value}`);
+            const res = await window.fetch(`${BASE_API}/get_products_by_name?query_name=${e.target.value}&return_deleted=true`);
             const products = await res.json();
     
             const ce = new CustomEvent('update-product-data', { detail: { products } });
