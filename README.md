@@ -1,5 +1,5 @@
 # groceries
-An app to organize your buy groceries
+An app to organize your buy groceries.
 
 # Docker
 
