@@ -35,6 +35,11 @@ jobs:
         git push "${remote_repo}" HEAD:master --tags
     - name: Run build task
       run: npm run build
+    - name: Archive production artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: the-dist-app
+        path: dist
     # - name: Prepare SSH to work with the remote server
       #run: |
         #mkdir ~/.ssh
