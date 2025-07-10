@@ -22,4 +22,9 @@ fs.readFile('./env_master.js', 'utf8', (err, data) => {
     const credendials = require('./env.js');
     result = `export const BASE_API = '${credendials.development.api}'`;
   }
+
+  fs.writeFile('env_master.js', result, { flag: 'w+' }, function (err) {
+    if (err) return console.log(err);
+    console.log(result);
+  });
 });
