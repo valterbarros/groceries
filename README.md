@@ -8,11 +8,8 @@ An app to organize your buy groceries.
 docker build -t groceries .
 
 # Run
-docker run -p 1234:1234 --rm --name groceries-container -v ${PWD}:/opt/app -it groceries /bin/bash
 
-# Or just run the script
-
-./groceries-run.sh
+./run.sh
 
 # attach to an already running container
 
